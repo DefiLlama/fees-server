@@ -1,0 +1,7 @@
+node_modules
+.webpack
+.env
+.serverless
+.DS_Store
+.esbuild
+.vscode
