@@ -26,7 +26,6 @@ jobs:
         FANTOM_RPC: ${{ secrets.FANTOM_RPC }}
         ARBITRUM_RPC: ${{ secrets.ARBITRUM_RPC }}
         OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC }}
-        XDAI_RPC: ${{ secrets.XDAI_RPC }}
         HARMONY_RPC: ${{ secrets.HARMONY_RPC }}
         MOONRIVER_RPC: ${{ secrets.MOONRIVER_RPC }}
         CRONOS_RPC: ${{ secrets.CRONOS_RPC }}
