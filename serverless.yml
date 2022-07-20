@@ -92,7 +92,7 @@ custom:
 
 functions:
   getFees:
-    handler: src/handlers/getFees.handler
+    handler: src/handlers/getFees.default
     timeout: 900
     memorySize: 1500
     events:
@@ -100,7 +100,7 @@ functions:
           method: get
           path: /fees
   # getRevenues:
-  #   handler: src/getRevenues.handler
+  #   handler: src/getRevenues.default
   #   timeout: 900
   #   memorySize: 1500
   #   events:
