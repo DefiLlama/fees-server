@@ -79,11 +79,11 @@ custom:
   tableName: prod-fees-table
   domainMap:
     prod:
-      domain: api.llama.fi
+      domain: fees.llama.fi
       certificateArn: "arn:aws:acm:us-east-1:856461987125:certificate/b4209013-30a6-417e-847e-6e630c3e77fe"
       hostedZone: llama.fi
     dev:
-      domain: staging-api.llama.fi
+      domain: staging-fees.llama.fi
       certificateArn: "arn:aws:acm:us-east-1:856461987125:certificate/b4209013-30a6-417e-847e-6e630c3e77fe"
       hostedZone: llama.fi
   domain: ${self:custom.domainMap.${self:custom.stage}.domain}
