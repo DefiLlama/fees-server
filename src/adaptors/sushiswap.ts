@@ -1,5 +1,4 @@
 import { getDexChainFees } from "../helpers/getUniSubgraphFees";
-import { getChainBlocks } from "@defillama/sdk/build/computeTVL/blocks";
 import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import {
   ARBITRUM,
@@ -11,7 +10,7 @@ import {
   POLYGON,
   XDAI,
 } from "../helpers/chains";
-import { DexFeeAdapter, ChainBlocks } from "../utils/dexFees.type";
+import { DexFeeAdapter } from "../utils/dexFees.type";
 
 
 const endpoints = {
