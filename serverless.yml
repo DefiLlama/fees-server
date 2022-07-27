@@ -104,7 +104,7 @@ functions:
     timeout: 900
     memorySize: 512
   triggerStoreFees:
-    handler: src/triggerStoreFees.default
+    handler: src/handlers/triggerStoreFees.default
     timeout: 900
     events:
       - schedule: rate(1 day)
