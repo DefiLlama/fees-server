@@ -10,7 +10,7 @@ import {
   POLYGON,
   XDAI,
 } from "../helpers/chains";
-import { DexFeeAdapter } from "../utils/dexAdapters.type";
+import { DexFeeAdapter } from "../utils/adapters.type";
 
 
 const endpoints = {

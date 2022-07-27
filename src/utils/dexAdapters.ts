@@ -1,7 +1,7 @@
 import feeAdapters from "../adaptors";
 import { notUndefined } from "./adapterData"
 import { Chain } from "./constants";
-import { DexFeeAdapter } from "./dexAdapters.type";
+import { DexFeeAdapter } from "./adapters.type";
 import data from "./protocols/data";
 
 const allFeeAdapters: Record<string, DexFeeAdapter> = feeAdapters;

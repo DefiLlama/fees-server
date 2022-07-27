@@ -18,7 +18,7 @@ export async function handleAdapterError(e: Error, adapterInfo?: IAdapterInfo) {
 export interface Adaptor {
     id: string;
     name: string;
-    feeAdapter: string;
+    adapterKey: string;
 }
 
 // Getting list of all fee adapters
@@ -32,7 +32,7 @@ const adaptorData: Adaptor[] = feeAdaptersKeys.map(adapterKey => {
     )
     if (foundInProtocols) return {
         ...foundInProtocols,
-        feeAdapter: adapterKey
+        adapterKey: adapterKey
     }
     // TODO: Handle better errors
     console.error(`Missing info for ${adapterKey}!`)

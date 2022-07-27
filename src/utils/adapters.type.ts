@@ -16,7 +16,7 @@ export type Fetch = (
   chainBlocks: ChainBlocks
 ) => Promise<FetchResult>;
 
-export type FeeAdapter = {
+export type BaseAdapter = {
   [x: string]: {
     start: number | any;
     fetch: Fetch;
@@ -26,7 +26,7 @@ export type FeeAdapter = {
 };
 
 export type DexFeeAdapter = {
-  fees: FeeAdapter;
+  fees: BaseAdapter;
 };
 
-export type DexAdapter = DexFeeAdapter;
+export type FeeAdapter = DexFeeAdapter;

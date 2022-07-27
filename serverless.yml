@@ -94,19 +94,15 @@ functions:
   getFees:
     handler: src/handlers/getFees.default
     timeout: 900
-    memorySize: 1500
+    memorySize: 512
     events:
       - http:
           method: get
           path: /fees
-  # getRevenues:
-  #   handler: src/getRevenues.default
-  #   timeout: 900
-  #   memorySize: 1500
-  #   events:
-  #     - http:
-  #         method: get
-  #         path: /revenues
+  storeFees:
+    handler: src/handlers/storeFees.default
+    timeout: 900
+    memorySize: 512
 
 resources:
   # CORS for api gateway errors
