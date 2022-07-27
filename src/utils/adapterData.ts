@@ -1,5 +1,5 @@
 import feeAdaptors from "../adaptors";
-import data from "../utils/protocols/data";
+import data from "./protocols/data";
 
 export interface IAdapterInfo {
   id: string
@@ -12,7 +12,7 @@ export async function handleAdapterError(e: Error, adapterInfo?: IAdapterInfo) {
   // TODO: handle error properly
   console.error(adapterInfo)
   console.error(e)
-  throw new Error(`Couldn´t get volume for ${JSON.stringify(adapterInfo)}`)
+  throw new Error(`Couldn´t get data for ${JSON.stringify(adapterInfo)}`)
 }
 
 export interface Adaptor {
@@ -39,7 +39,7 @@ const adaptorData: Adaptor[] = feeAdaptersKeys.map(adapterKey => {
     return undefined
 }).filter(notUndefined);
 
-function notUndefined<T>(x: T | undefined): x is T {
+export function notUndefined<T>(x: T | undefined): x is T {
     return x !== undefined;
 }
 
