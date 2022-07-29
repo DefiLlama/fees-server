@@ -35,6 +35,7 @@ export const handler = async (event: IHandlerEvent) => {
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
+    console.log(currentTimestamp)
     return allSettled(chains.map((chain) => feeAdapter[chain].fetch(currentTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
       id,
       chain,
@@ -45,9 +46,9 @@ export const handler = async (event: IHandlerEvent) => {
 
   // TODO: change for allSettled, also incorporate non DEX fees at some point
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
+    console.log(event)
     // Get info
     const { id, adapterKey } = feeAdapters[protocolIndex];
-
     // Import adapter
     const adapter: FeeAdapter = (await importFeesAdapter(feeAdapters[protocolIndex])).default;
 
