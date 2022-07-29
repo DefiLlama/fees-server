@@ -31,16 +31,16 @@ export const handler = async (event: IHandlerEvent) => {
 
   // Get closest block to clean day. Only for EVM compatible ones.
   const allChains = getAllChainsFromDexAdapters()
-  const chainBlocks = await getChainBlocks(currentTimestamp, allChains);
+  const chainBlocks = await getChainBlocks(fetchCurrentHourTimestamp, allChains);
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
-    console.log(currentTimestamp)
-    return allSettled(chains.map((chain) => feeAdapter[chain].fetch(currentTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
+    console.log(fetchCurrentHourTimestamp)
+    return allSettled(chains.map((chain) => feeAdapter[chain].fetch(fetchCurrentHourTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
       id,
       chain,
       version,
-      timestamp: currentTimestamp
+      timestamp: fetchCurrentHourTimestamp
     }))))
   }
 
