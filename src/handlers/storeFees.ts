@@ -35,7 +35,9 @@ export const handler = async (event: IHandlerEvent) => {
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
-    console.log(fetchCurrentHourTimestamp)
+    console.log(allChains)
+    console.log(feeAdapter)
+    console.log(chainBlocks)
     return allSettled(chains.map((chain) => feeAdapter[chain].fetch(fetchCurrentHourTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
       id,
       chain,
@@ -55,9 +57,12 @@ export const handler = async (event: IHandlerEvent) => {
     // Retrieve daily volumes
     let rawDailyFees: IRecordFeeData[] = []
     if ("fees" in adapter) {
+      console.log("running adapter")
       const runAdapterRes = await runAdapter(adapter.fees, id)
+      console.log("adapterRes: " + runAdapterRes)
       // TODO: process rejected promises
       const fees = runAdapterRes.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value)
+      console.log("fees: " + fees)
       for (const fee of fees) {
         if (fee && fee.result.dailyFees)
           rawDailyFees.push({
