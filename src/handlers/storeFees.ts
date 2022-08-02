@@ -35,9 +35,13 @@ export const handler = async (event: IHandlerEvent) => {
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
-    console.log(allChains)
-    console.log(feeAdapter)
+    console.log(chains)
     console.log(chainBlocks)
+    console.log(fetchCurrentHourTimestamp)
+    console.log(feeAdapter['avax'])
+    console.log(await feeAdapter['avax'].fetch(fetchCurrentHourTimestamp, chainBlocks))
+    console.log("ran adapter avax")
+
     return allSettled(chains.map((chain) => feeAdapter[chain].fetch(fetchCurrentHourTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
       id,
       chain,
@@ -48,7 +52,6 @@ export const handler = async (event: IHandlerEvent) => {
 
   // TODO: change for allSettled, also incorporate non DEX fees at some point
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
-    console.log(event)
     // Get info
     const { id, adapterKey } = feeAdapters[protocolIndex];
     // Import adapter
@@ -57,12 +60,9 @@ export const handler = async (event: IHandlerEvent) => {
     // Retrieve daily volumes
     let rawDailyFees: IRecordFeeData[] = []
     if ("fees" in adapter) {
-      console.log("running adapter")
-      const runAdapterRes = await runAdapter(adapter.fees, id)
-      console.log("adapterRes: " + runAdapterRes)
+      const runAdapterRes = await runAdapter(adapter.fees, id, "1")
       // TODO: process rejected promises
       const fees = runAdapterRes.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value)
-      console.log("fees: " + fees)
       for (const fee of fees) {
         if (fee && fee.result.dailyFees)
           rawDailyFees.push({

@@ -10,5 +10,7 @@ module.exports = {
     OPTIMISM_RPC: process.env.OPTIMISM_RPC,
     HARMONY_RPC: process.env.HARMONY_RPC,
     CRONOS_RPC: process.env.CRONOS_RPC,
-    MOONRIVER_RPC: process.env.MOONRIVER_RPC
+    MOONRIVER_RPC: process.env.MOONRIVER_RPC,
+    AVAX_RPC: process.env.AVAX_RPC,
+    XDAI_RPC: process.env.XDAI_RPC,
 }

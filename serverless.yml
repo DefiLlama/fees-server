@@ -60,8 +60,10 @@ provider:
     POLYGON_RPC: ${file(./env.js):POLYGON_RPC}
     FANTOM_RPC: ${file(./env.js):FANTOM_RPC}
     ARBITRUM_RPC: ${file(./env.js):ARBITRUM_RPC}
-    OPTIMISM_RPC: ${file(./env.js):OPTIMISM_RPC}\
+    OPTIMISM_RPC: ${file(./env.js):OPTIMISM_RPC}
     HARMONY_RPC: ${file(./env.js):HARMONY_RPC}
+    AVAX_RPC: ${file(./env.js):AVAX_RPC}
+    XDAI_RPC: ${file(./env.js):XDAI_RPC}
     tableName: ${self:custom.tableName}
     stage: ${self:custom.stage}
 
