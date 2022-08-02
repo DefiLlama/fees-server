@@ -76,16 +76,17 @@ query get_volume($block: Int, $id: Int) {
         block,
         id,
       });
-      totalVolume = graphRes[totalVolume.factory][0][totalVolume.field];
-      dailyVolume = hasDailyVolume ? (graphRes?.[dailyVolume.factory]?.[dailyVolume.field] ?? "0") : undefined;
 
+      const chainTotalVolume = graphRes[totalVolume.factory][0][totalVolume.field];
+      const chainDailyVolume = hasDailyVolume ? (graphRes?.[dailyVolume.factory]?.[dailyVolume.field] ?? "0") : undefined;
+      
       return {
         timestamp,
         block,
-        totalFees: BigNumber(totalVolume).multipliedBy(totalFees).toString(),
-        dailyFees: (hasDailyVolume && dailyVolume) ? BigNumber(dailyVolume).multipliedBy(totalFees).toString() : undefined,
-        totalRevenue: BigNumber(totalVolume).multipliedBy(protocolFees).toString(),
-        dailyRevenue: (hasDailyVolume && dailyVolume) ? BigNumber(dailyVolume).multipliedBy(protocolFees).toString() : undefined
+        totalFees: BigNumber(chainTotalVolume).multipliedBy(totalFees).toString(),
+        dailyFees: (hasDailyVolume && chainDailyVolume) ? BigNumber(chainDailyVolume).multipliedBy(totalFees).toString() : undefined,
+        totalRevenue: BigNumber(chainTotalVolume).multipliedBy(protocolFees).toString(),
+        dailyRevenue: (hasDailyVolume && chainDailyVolume) ? BigNumber(chainDailyVolume).multipliedBy(protocolFees).toString() : undefined
       };
     };
   };
