@@ -35,12 +35,6 @@ export const handler = async (event: IHandlerEvent) => {
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
-    console.log(chains)
-    console.log(chainBlocks)
-    console.log(fetchCurrentHourTimestamp)
-    console.log(feeAdapter['avax'])
-    console.log(await feeAdapter['avax'].fetch(fetchCurrentHourTimestamp, chainBlocks))
-    console.log("ran adapter avax")
 
     return allSettled(chains.map((chain) => feeAdapter[chain].fetch(fetchCurrentHourTimestamp, chainBlocks).then(result => ({ chain, result })).catch((e) => handleAdapterError(e, {
       id,
@@ -61,9 +55,14 @@ export const handler = async (event: IHandlerEvent) => {
     let rawDailyFees: IRecordFeeData[] = []
     if ("fees" in adapter) {
       const runAdapterRes = await runAdapter(adapter.fees, id, "1")
+      console.log(runAdapterRes)
       // TODO: process rejected promises
       const fees = runAdapterRes.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value)
+      console.log(fees)
       for (const fee of fees) {
+        console.log(fee)
+        if (fee)
+          console.log(fee.result)
         if (fee && fee.result.dailyFees)
           rawDailyFees.push({
             [fee.chain]: {
@@ -75,6 +74,7 @@ export const handler = async (event: IHandlerEvent) => {
       console.error("Invalid adapter")
       throw new Error("Invalid adapter")
     }
+    console.log("raw daily fees " + rawDailyFees)
     const dailyFees = rawDailyFees.reduce((acc, current: IRecordFeeData) => {
       const chain = Object.keys(current)[0]
       acc[chain] = {
