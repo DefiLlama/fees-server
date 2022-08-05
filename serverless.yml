@@ -99,8 +99,8 @@ functions:
     memorySize: 512
     events:
       - http:
+          path: fees/{protocol}
           method: get
-          path: /fees
   storeFees:
     handler: src/handlers/storeFees.default
     timeout: 900
