@@ -75,15 +75,4 @@ const adapter: DexFeeAdapter = {
     fees,
 };
 
-// const test = async() => {
-//     const timestamp = await adapter.fees['ethereum'].start()
-//     // const timestamp = Date.now() / 1000;
-//     console.log(timestamp);
-//     // const chainBlocks = await getChainBlocks(timestamp, ['ethereum']);
-//     // console.log(chainBlocks);
-//     const output = await adapter.fees['ethereum'].fetch(timestamp, { ethereum: 15181091 });
-//     console.log(output);
-// };
-
-// test();
 export default adapter;
