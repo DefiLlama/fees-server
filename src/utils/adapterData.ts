@@ -1,5 +1,6 @@
 import feeAdaptors from "../adaptors";
 import data from "./protocols/data";
+import { Protocol } from "./protocols/types";
 
 export interface IAdapterInfo {
   id: string
@@ -15,7 +16,7 @@ export async function handleAdapterError(e: Error, adapterInfo?: IAdapterInfo) {
   throw new Error(`Couldn´t get data for ${JSON.stringify(adapterInfo)}`)
 }
 
-export interface Adaptor {
+export interface Adaptor extends Protocol{
     id: string;
     name: string;
     adapterKey: string;
