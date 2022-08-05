@@ -1,28 +1,60 @@
+import { getTimestampAtStartOfDayUTC } from "../utils/date";
 import { successResponse, wrap, IResponse } from "../utils";
-import dynamodb, {TableName} from "../utils/dynamodb";
+import sluggify from "../utils/sluggify";
+import { getFees, Fee, FeeType } from "../utils/data/fees";
+import feeAdapters from "../utils/adapterData";
+import { Protocol } from "../utils/protocols/types"
+import { summAllFees } from "../utils/feeCalcs";
+import { IRecordFeeData } from "./storeFees";
 
-const step = 100; // Max 100 items per batchGet
-const handler = async (
-  event: AWSLambda.APIGatewayEvent
-): Promise<IResponse> => {
-  const requestedCoins = JSON.parse(event.body!).coins
-  const requests = []
-  for (let i = 0; i < requestedCoins.length; i += step) {
-    requests.push(dynamodb.batchGet(
-      requestedCoins.slice(i, i+step).map((coin:string)=>({
-        PK: `asset#${coin}`,
-        SK: 0
-      }))
-    ).then(items=>items.Responses![TableName]))
+export interface FeeHistoryItem {
+  dailyFees: IRecordFeeData;
+  timestamp: number;
+}
+
+export interface IHandlerBodyResponse extends Protocol {
+    feesHistory: FeeHistoryItem[] | null
+    total1dFees: number | null
+}
+
+export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IResponse> => {
+  const protocolName = event.pathParameters?.protocol?.toLowerCase()
+  if (!protocolName) throw new Error("Missing protocol name!")
+
+  const feeData = feeAdapters.find(
+      (prot) => sluggify(prot) === protocolName
+  );
+  if (!feeData) throw new Error("Fee data not found!")
+  let feeDataResponse = {}
+  try {
+      const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
+
+      if (fee instanceof Fee) throw new Error("Wrong fee queried")
+
+      const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
+      const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
+
+      const ddr: IHandlerBodyResponse = {
+          ...feeData,
+          feesHistory: fee.map<FeeHistoryItem>(f => ({
+              dailyFees: f.data,
+              timestamp: f.sk
+          })),
+          total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
+      }
+      feeDataResponse = ddr
+  } catch (error) {
+      console.error(error)
+      const ddr: IHandlerBodyResponse = {
+          ...feeData,
+          feesHistory: null,
+          total1dFees: null
+      }
+      feeDataResponse = ddr
   }
-  const returnedCoins = (await Promise.all(requests)).reduce((acc, coins)=>acc.concat(coins.map(coin=>({
-    "decimals": coin.decimals,
-    coin: coin.PK.substr("asset#".length),
-    "price": coin.price,
-    "symbol": coin.symbol,
-    "timestamp": coin.timestamp
-  }))), [])
-  return successResponse(returnedCoins);
+
+  // return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
+  return successResponse(feeDataResponse as IHandlerBodyResponse); // no cache for testing
 };
 
 export default wrap(handler);
