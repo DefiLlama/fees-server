@@ -4,7 +4,8 @@ import type { IRecordFeeData } from "../../handlers/storeFees"
 import { Item } from "./base"
 
 export enum FeeType {
-    dailyFees = "df"
+    dailyFees = "df",
+    dailyRevenue = "dr"
 }
 
 export class Fee extends Item {

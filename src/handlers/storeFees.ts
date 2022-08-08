@@ -51,8 +51,9 @@ export const handler = async (event: IHandlerEvent) => {
       // Import adapter
       const adapter: FeeAdapter = (await importFeesAdapter(feeAdapters[protocolIndex])).default;
 
-      // Retrieve daily volumes
+      // Retrieve daily fees
       let rawDailyFees: IRecordFeeData[] = []
+      let rawDailyRevenue: IRecordFeeData[] = []
       if ("fees" in adapter) {
         const runAdapterRes = await runAdapter(adapter.fees, id)
         // TODO: process rejected promises
@@ -64,12 +65,19 @@ export const handler = async (event: IHandlerEvent) => {
                 [adapterKey]: +fee.result.dailyFees
               },
             })
+          if (fee && fee.result.dailyRevenue)
+            rawDailyRevenue.push({
+              [fee.chain]: {
+                [adapterKey]: +fee.result.dailyRevenue
+              },
+            })
         }
       } else {
         console.error("Invalid adapter")
         throw new Error("Invalid adapter")
       }
       console.log("raw daily fees " + rawDailyFees)
+      console.log("raw daily rev " + rawDailyRevenue)
       const dailyFees = rawDailyFees.reduce((acc, current: IRecordFeeData) => {
         const chain = Object.keys(current)[0]
         acc[chain] = {
@@ -78,9 +86,20 @@ export const handler = async (event: IHandlerEvent) => {
         }
         return acc
       }, {} as IRecordFeeData)
+
+      const dailyRevenue = rawDailyRevenue.reduce((acc, current: IRecordFeeData) => {
+        const chain = Object.keys(current)[0]
+        acc[chain] = {
+          ...acc[chain],
+          ...current[chain]
+        }
+        return acc
+      }, {} as IRecordFeeData)
       console.log("Retrieved", "fees", id, fetchCurrentDayTimestamp, dailyFees)
+      console.log("Retrieved", "revenue", id, fetchCurrentDayTimestamp, dailyRevenue)
 
       await storeFees(new Fee(FeeType.dailyFees, id, fetchCurrentDayTimestamp, dailyFees))
+      await storeFees(new Fee(FeeType.dailyRevenue, id, fetchCurrentDayTimestamp, dailyRevenue))
     }
     catch (error) {
       const err = error as Error
