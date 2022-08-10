@@ -17,7 +17,7 @@ const getUniqStartOfTodayTimestamp = (date = new Date()) => {
 };
 
 // To get ID for daily data https://docs.uniswap.org/protocol/V2/reference/API/entities
-const getUniswapDateId = () => getUniqStartOfTodayTimestamp() / 86400;
+const getUniswapDateId = (date) => getUniqStartOfTodayTimestamp(date) / 86400;
 
 const DEFAULT_TOTAL_VOLUME_FACTORY = "uniswapFactories";
 const DEFAULT_TOTAL_VOLUME_FIELD = "totalVolumeUSD";
@@ -71,7 +71,9 @@ query get_volume($block: Int, $id: Int) {
       const block =
         (getCustomBlock && (await getCustomBlock(timestamp))) ||
         (await getBlock(timestamp, chain, chainBlocks));
-      const id = getUniswapDateId();
+      
+      const id = getUniswapDateId(new Date(timestamp * 1000));
+
       const graphRes = await request(graphUrls[chain], graphQuery, {
         block,
         id,
@@ -79,7 +81,9 @@ query get_volume($block: Int, $id: Int) {
 
       const chainTotalVolume = graphRes[totalVolume.factory][0][totalVolume.field];
       const chainDailyVolume = hasDailyVolume ? (graphRes?.[dailyVolume.factory]?.[dailyVolume.field] ?? "0") : undefined;
-      
+      console.log(BigNumber(chainTotalVolume).multipliedBy(totalFees).toString())
+      console.log(BigNumber(chainTotalVolume).multipliedBy(protocolFees).toString())
+
       return {
         timestamp,
         block,
