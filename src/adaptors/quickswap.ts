@@ -3,7 +3,7 @@ import { DexFeeAdapter } from "../utils/adapters.type";
 import { POLYGON } from "../helpers/chains";
 
 const endpoints = {
-  [POLYGON]: "https://api.thegraph.com/subgraphs/name/sameepsi/quickswap05",
+  [POLYGON]: "https://polygon.furadao.org/subgraphs/name/quickswap",
 };
 
 const TOTAL_FEES = 0.003;
@@ -13,7 +13,6 @@ const graphs = getDexChainFees({
     [POLYGON]: endpoints[POLYGON]
   },
   totalFees: TOTAL_FEES,
-  hasDailyVolume: false,
 });
 
 const fees = Object.keys(endpoints).reduce(
