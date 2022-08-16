@@ -1,5 +1,5 @@
 import { getDexChainFees } from "../helpers/getUniSubgraphFees";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
+import { getStartTimestamp } from "../../DefiLlama-Adapters/dexVolumes/helper/getStartTimestamp";
 import {
   ARBITRUM,
   AVAX,

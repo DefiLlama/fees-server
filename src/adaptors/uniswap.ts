@@ -8,7 +8,7 @@ import {
 } from "../helpers/getUniSubgraphFees";
 
 import { ARBITRUM, ETHEREUM, OPTIMISM, POLYGON } from "../helpers/chains";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
+import { getStartTimestamp } from "../../DefiLlama-Adapters/dexVolumes/helper/getStartTimestamp";
 
 const v1Endpoints = {
   [ETHEREUM]: "https://api.thegraph.com/subgraphs/name/ianlapham/uniswap",
