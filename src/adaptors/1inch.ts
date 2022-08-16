@@ -1,10 +1,10 @@
 import { DexFeeAdapter } from "../utils/adapters.type";
 import { 
-  getDexChainFees, 
+  getDexChainFeesRaw, 
   DEFAULT_DAILY_VOLUME_FIELD, 
   DEFAULT_TOTAL_VOLUME_FIELD
 } from "../helpers/getUniSubgraphFees";
-import { getStartTimestamp } from "@defillama/adapters/dexVolumes/helper/getStartTimestamp";
+import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { ETHEREUM } from "../helpers/chains";
 
 const endpoints = {
@@ -14,7 +14,7 @@ const endpoints = {
 
 const dailyDataFactory = "mooniswapDayData";
 
-const graphs = getDexChainFees({
+const graphs = getDexChainFeesRaw({
   graphUrls: {
     [ETHEREUM]: endpoints[ETHEREUM],
   },

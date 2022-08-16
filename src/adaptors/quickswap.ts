@@ -1,6 +1,7 @@
-import { getDexChainFees } from "../helpers/getUniSubgraphFees";
+import { getDexChainFeesRaw } from "../helpers/getUniSubgraphFees";
 import { DexFeeAdapter } from "../utils/adapters.type";
 import { POLYGON } from "../helpers/chains";
+import { Chain } from "@defillama/sdk/build/general";
 
 const endpoints = {
   [POLYGON]: "https://polygon.furadao.org/subgraphs/name/quickswap",
@@ -9,7 +10,7 @@ const endpoints = {
 const TOTAL_FEES = 0.003;
 const PROTOCOL_FEES = 0.0005;
 
-const graphs = getDexChainFees({
+const graphs = getDexChainFeesRaw({
   graphUrls: {
     [POLYGON]: endpoints[POLYGON]
   },
@@ -21,7 +22,7 @@ const fees = Object.keys(endpoints).reduce(
   (acc, chain) => ({
     ...acc,
     [chain]: {
-      fetch: graphs(chain),
+      fetch: graphs(chain as Chain),
       start: 1602115200,
     },
   }),

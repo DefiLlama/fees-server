@@ -1,8 +1,4 @@
-import { 
-  ChainBlocks,
-  VolumeAdapter,
-  DexBreakdownAdapter,
-} from "@defillama/adapters/dexVolumes/dexVolume.type"
+import { ChainBlocks } from "@defillama/adapters/dexVolumes/dexVolume.type"
 
 export type FetchResult = {
   block?: number;
@@ -18,12 +14,25 @@ export type Fetch = (
   chainBlocks: ChainBlocks
 ) => Promise<FetchResult>;
 
-export type BaseAdapter = VolumeAdapter;
+export type BaseAdapter = {
+  [x: string]: {
+    start: number | (() => Promise<number>)
+    fetch: Fetch;
+    runAtCurrTime?: boolean;
+    customBackfill?: Fetch;
+  };
+};
+
+export type BreakdownAdapter = {
+  [x: string]: BaseAdapter;
+};
 
 export type DexFeeAdapter = {
   fees: BaseAdapter;
 };
 
-export type DexFeeBreakdownAdapter = DexBreakdownAdapter;
+export type DexFeeBreakdownAdapter = {
+  breakdown: BreakdownAdapter;
+};
 
 export type FeeAdapter = DexFeeAdapter | DexFeeBreakdownAdapter;

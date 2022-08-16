@@ -1,4 +1,4 @@
-import { getDexChainFees } from "../helpers/getUniSubgraphFees";
+import { getDexChainFeesRaw } from "../helpers/getUniSubgraphFees";
 import { getStartTimestamp } from "@defillama/adapters/dexVolumes/helper/getStartTimestamp";
 import {
   ARBITRUM,
@@ -11,6 +11,7 @@ import {
   XDAI,
 } from "../helpers/chains";
 import { DexFeeAdapter } from "../utils/adapters.type";
+import { Chain } from "@defillama/sdk/build/general";
 
 
 const endpoints = {
@@ -31,7 +32,7 @@ const VOLUME_FIELD = "volumeUSD";
 const TOTAL_FEES = 0.003;
 const PROTOCOL_FEES = 0.0005;
 
-const graphs = getDexChainFees({
+const graphs = getDexChainFeesRaw({
   graphUrls: {
     [ARBITRUM]: endpoints[ARBITRUM],
     [AVAX]: endpoints[AVAX],
@@ -64,7 +65,7 @@ const fees = Object.keys(endpoints).reduce(
   (acc, chain) => ({
     ...acc,
     [chain]: {
-      fetch: graphs(chain),
+      fetch: graphs(chain as Chain),
       start: getStartTimestamp({ ...startTimeQuery, chain }),
     },
   }),
