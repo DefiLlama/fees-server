@@ -1,0 +1,4 @@
+[submodule "DefiLlama-Adapters"]
+	path = defi/DefiLlama-Adapters
+	url = https://github.com/DefiLlama/DefiLlama-Adapters.git
+
