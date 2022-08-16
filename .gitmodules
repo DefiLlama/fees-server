@@ -1,0 +1,3 @@
+[submodule "DefiLlama-Adapters"]
+	path = DefiLlama-Adapters
+	url = git@github.com-wrappor:DefiLlama/DefiLlama-Adapters.git
