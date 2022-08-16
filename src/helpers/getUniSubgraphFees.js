@@ -25,6 +25,43 @@ const DEFAULT_TOTAL_VOLUME_FIELD = "totalVolumeUSD";
 const DEFAULT_DAILY_VOLUME_FACTORY = "uniswapDayData";
 const DEFAULT_DAILY_VOLUME_FIELD = "dailyVolumeUSD";
 
+const DEFAULT_TOTAL_FEES_FACTORY = "factories";
+const DEFAULT_TOTAL_FEES_FIELD = "totalFeesUSD";
+
+const DEFAULT_DAILY_FEES_FACTORY = "uniswapDayData";
+const DEFAULT_DAILY_FEES_FIELD = "feesUSD";
+
+const getUniswapV3Fees = ({
+  graphUrls,
+}) => {
+  const graphQuery = gql`query fees($dateId: Int!) {
+    ${DEFAULT_DAILY_FEES_FACTORY}(id: $dateId) {
+      ${DEFAULT_DAILY_FEES_FIELD}
+    },
+    ${DEFAULT_TOTAL_FEES_FACTORY} {
+      ${DEFAULT_TOTAL_FEES_FIELD}
+    }
+  }`;
+  
+  return (chain) => {
+    return async (timestamp, chainBlocks) => {
+      const dateId = getUniswapDateId(new Date(timestamp * 1000));
+
+      const graphRes = await request(graphUrls[chain], graphQuery, {
+        dateId,
+      });
+
+      return {
+        timestamp,
+        totalFees: graphRes[DEFAULT_TOTAL_FEES_FACTORY][0][DEFAULT_TOTAL_FEES_FIELD],
+        dailyFees: graphRes[DEFAULT_DAILY_FEES_FACTORY][DEFAULT_DAILY_FEES_FIELD],
+        totalRevenue: "0", // uniswap has no rev yet
+        dailyRevenue: "0", // uniswap has no rev yet
+      };
+    };
+  };
+};
+
 function getDexChainFees({
   graphUrls,
   totalFees = 0,
@@ -81,8 +118,6 @@ query get_volume($block: Int, $id: Int) {
 
       const chainTotalVolume = graphRes[totalVolume.factory][0][totalVolume.field];
       const chainDailyVolume = hasDailyVolume ? (graphRes?.[dailyVolume.factory]?.[dailyVolume.field] ?? "0") : undefined;
-      console.log(BigNumber(chainTotalVolume).multipliedBy(totalFees).toString())
-      console.log(BigNumber(chainTotalVolume).multipliedBy(protocolFees).toString())
 
       return {
         timestamp,
@@ -99,6 +134,7 @@ query get_volume($block: Int, $id: Int) {
 module.exports = {
   getUniqStartOfTodayTimestamp,
   getDexChainFees,
+  getUniswapV3Fees,
   DEFAULT_DAILY_VOLUME_FACTORY,
   DEFAULT_DAILY_VOLUME_FIELD,
   DEFAULT_TOTAL_VOLUME_FACTORY,
