@@ -29,4 +29,12 @@ export type DexFeeAdapter = {
   fees: BaseAdapter;
 };
 
-export type FeeAdapter = DexFeeAdapter;
+export type BreakdownAdapter = {
+  [x: string]: BaseAdapter;
+};
+
+export type DexFeeBreakdownAdapter = {
+  breakdown: BreakdownAdapter;
+};
+
+export type FeeAdapter = DexFeeAdapter | DexFeeBreakdownAdapter;
