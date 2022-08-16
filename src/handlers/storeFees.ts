@@ -72,12 +72,37 @@ export const handler = async (event: IHandlerEvent) => {
               },
             })
         }
+      } else if ("breakdown" in adapter) {
+        const dexFeeBreakDownAdapter = adapter.breakdown
+        for (const [version, feeAdapterObj] of Object.entries(dexFeeBreakDownAdapter)) {
+          const runAdapterRes = await runAdapter(feeAdapterObj, id)
+
+          const fees = runAdapterRes.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value)
+
+          for (const fee of fees) {
+            if (fee && fee.result.dailyFees) {
+              rawDailyFees.push({
+                [fee.chain]: {
+                  [version]: +fee.result.dailyFees
+                },
+              })
+            }
+            if (fee && fee.result.dailyRevenue) {
+              rawDailyRevenue.push({
+                [fee.chain]: {
+                  [version]: +fee.result.dailyRevenue
+                },
+              })
+            }
+          }
+        }
       } else {
         console.error("Invalid adapter")
         throw new Error("Invalid adapter")
       }
       console.log("raw daily fees " + rawDailyFees)
       console.log("raw daily rev " + rawDailyRevenue)
+      
       const dailyFees = rawDailyFees.reduce((acc, current: IRecordFeeData) => {
         const chain = Object.keys(current)[0]
         acc[chain] = {
