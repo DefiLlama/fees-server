@@ -4,7 +4,7 @@ import {
   DEFAULT_DAILY_VOLUME_FIELD, 
   DEFAULT_TOTAL_VOLUME_FIELD
 } from "../helpers/getUniSubgraphFees";
-import { getStartTimestamp } from "../../DefiLlama-Adapters/dexVolumes/helper/getStartTimestamp";
+import { getStartTimestamp } from "@defillama/adapters/dexVolumes/helper/getStartTimestamp";
 import { ETHEREUM } from "../helpers/chains";
 
 const endpoints = {

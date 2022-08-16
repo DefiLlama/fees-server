@@ -7,7 +7,7 @@ const {
   DEFAULT_TOTAL_VOLUME_FIELD,
   DEFAULT_DAILY_VOLUME_FACTORY,
   DEFAULT_DAILY_VOLUME_FIELD,
-} = require("../../DefiLlama-Adapters/dexVolumes/helper/getUniSubgraphVolume");
+} = require("@defillama/adapters/dexVolumes/helper/getUniSubgraphVolume");
 
 // To get ID for daily data https://docs.uniswap.org/protocol/V2/reference/API/entities
 const getUniswapDateId = (date) => getUniqStartOfTodayTimestamp(date) / 86400;

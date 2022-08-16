@@ -2,7 +2,7 @@ import {
   ChainBlocks,
   VolumeAdapter,
   DexBreakdownAdapter,
-} from "../../DefiLlama-Adapters/dexVolumes/dexVolume.type"
+} from "@defillama/adapters/dexVolumes/dexVolume.type"
 
 export type FetchResult = {
   block?: number;
