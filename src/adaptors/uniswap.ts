@@ -1,7 +1,7 @@
-import { DexFeeBreakdownAdapter } from "../utils/adapters.type";
+import { BreakdownAdapter, DexFeeBreakdownAdapter } from "../utils/adapters.type";
 import { ARBITRUM, ETHEREUM, OPTIMISM, POLYGON } from "../helpers/chains";
 import { getStartTimestamp } from "../helpers/getStartTimestamp";
-import { getUniswapV3Fees } from "../helpers/getUniSubgraphFees";
+import { getDexChainBreakdownFees, getUniswapV3Fees } from "../helpers/getUniSubgraphFees";
 import volumeAdapter from "@defillama/adapters/dexVolumes/uniswap";
 
 const v3Endpoints = {
@@ -19,26 +19,17 @@ const VOLUME_USD = "volumeUSD";
 const TOTAL_FEES = 0.003;
 
 const v3Graphs = getUniswapV3Fees({
-...v3Endpoints
+  ...v3Endpoints
+});
+
+const breakdownAdapter: BreakdownAdapter = getDexChainBreakdownFees({
+  totalFees: TOTAL_FEES,
+  volumeAdapter
 });
 
 const adapter: DexFeeBreakdownAdapter = {
   breakdown: {
-    // v1: {
-    //   [ETHEREUM]: {
-    //     fetch: v1Graph(ETHEREUM),
-    //     start: 1541203200,
-    //   },
-    // },
-    // v2: {
-    //   [ETHEREUM]: {
-    //     fetch: v2Graph(ETHEREUM),
-    //     start: getStartTimestamp({
-    //       endpoints: v2Endpoints,
-    //       chain: ETHEREUM,
-    //     }),
-    //   },
-    // },
+    ...breakdownAdapter,
     v3: {
       [ETHEREUM]: {
         fetch: v3Graphs(ETHEREUM),
@@ -65,7 +56,7 @@ const adapter: DexFeeBreakdownAdapter = {
         }),
       },
     },
-  },
-};
+  }
+}
 
 export default adapter;
