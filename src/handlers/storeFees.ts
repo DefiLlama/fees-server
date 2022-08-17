@@ -100,8 +100,6 @@ export const handler = async (event: IHandlerEvent) => {
         console.error("Invalid adapter")
         throw new Error("Invalid adapter")
       }
-      console.log("raw daily fees " + rawDailyFees)
-      console.log("raw daily rev " + rawDailyRevenue)
       
       const dailyFees = rawDailyFees.reduce((acc, current: IRecordFeeData) => {
         const chain = Object.keys(current)[0]

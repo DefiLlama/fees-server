@@ -1,4 +1,4 @@
-import { ChainBlocks, DexAdapter, VolumeAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
+import { ChainBlocks, DexAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
 import { Chain } from "@defillama/sdk/build/general";
 
 import BigNumber from "bignumber.js";
@@ -11,7 +11,7 @@ import {
   DEFAULT_DAILY_VOLUME_FACTORY,
   DEFAULT_DAILY_VOLUME_FIELD,
 } from "@defillama/adapters/dexVolumes/helper/getUniSubgraphVolume";
-import { BaseAdapter, BreakdownAdapter, DexFeeBreakdownAdapter, FeeAdapter } from "../utils/adapters.type";
+import { BaseAdapter, BreakdownAdapter } from "../utils/adapters.type";
 
 // To get ID for daily data https://docs.uniswap.org/protocol/V2/reference/API/entities
 const getUniswapDateId = (date?: Date) => getUniqStartOfTodayTimestamp(date) / 86400;
