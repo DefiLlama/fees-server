@@ -3,4 +3,6 @@ export default {
     "1inch": require("../../adaptors/1inch"),
     "quickswap": require("../../adaptors/quickswap"),
     "uniswap": require("../../adaptors/uniswap"),
+    "spookyswap": require("../../adaptors/spookyswap"),
+    "traderjoe": require("../../adaptors/traderjoe"),
 }
