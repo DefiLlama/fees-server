@@ -119,6 +119,45 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
   }
 }
 
+
+const getDexChainFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGetChainFeeParams) => {
+  if ('volume' in volumeAdapter) {
+    let finalBaseAdapter: BaseAdapter = { }
+    const adapterObj = volumeAdapter.volume
+    
+    const baseAdapters = Object.keys(adapterObj).map(chain => {
+      const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
+        const fetchedResult = await adapterObj[chain].fetch(timestamp, chainBlocks)
+        const chainDailyVolume = fetchedResult.dailyVolume ? fetchedResult.dailyVolume : "0";
+        const chainTotalVolume = fetchedResult.totalVolume;
+  
+        return {
+          timestamp,
+          totalFees: new BigNumber(chainTotalVolume).multipliedBy(totalFees).toString(),
+          dailyFees: chainDailyVolume ? new BigNumber(chainDailyVolume).multipliedBy(totalFees).toString() : undefined,
+          totalRevenue: new BigNumber(chainTotalVolume).multipliedBy(protocolFees).toString(),
+          dailyRevenue: chainDailyVolume ? new BigNumber(chainDailyVolume).multipliedBy(protocolFees).toString() : undefined
+        };
+      }
+
+      const baseAdapter: BaseAdapter = {
+        [chain]: {
+          ...adapterObj[chain],
+          fetch: fetchFees,
+          customBackfill: fetchFees,
+        }
+      }
+      finalBaseAdapter = { ...baseAdapter, ...finalBaseAdapter }
+      return baseAdapter
+    });
+
+    return finalBaseAdapter;
+  } else {
+    console.log(`Failed to grab dex volume data`)
+    return {}
+  }
+}
+
 // Raw method if we do not want to rely on dexVolumes
 function getDexChainFeesRaw({
   graphUrls,
@@ -191,6 +230,7 @@ query get_volume($block: Int, $id: Int) {
 
 export {
   getUniqStartOfTodayTimestamp,
+  getDexChainFees,
   getDexChainFeesRaw,
   getDexChainBreakdownFees,
   getUniswapV3Fees,
