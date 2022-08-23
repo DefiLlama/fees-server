@@ -12,6 +12,7 @@ import {
   DEFAULT_DAILY_VOLUME_FIELD,
 } from "@defillama/adapters/dexVolumes/helper/getUniSubgraphVolume";
 import { BaseAdapter, BreakdownAdapter } from "../utils/adapters.type";
+import { IGraphUrls } from "./graphs.type";
 
 // To get ID for daily data https://docs.uniswap.org/protocol/V2/reference/API/entities
 const getUniswapDateId = (date?: Date) => getUniqStartOfTodayTimestamp(date) / 86400;
@@ -21,10 +22,6 @@ const DEFAULT_TOTAL_FEES_FIELD = "totalFeesUSD";
 
 const DEFAULT_DAILY_FEES_FACTORY = "uniswapDayData";
 const DEFAULT_DAILY_FEES_FIELD = "feesUSD";
-
-export interface IGraphUrls {
-  [chains: string]: string
-}
 
 interface IGetRawChainFeeParams {
   graphUrls: IGraphUrls,
@@ -49,6 +46,7 @@ interface IGetChainFeeParams {
   totalFees?: number,
   protocolFees?: number,
 }
+
 
 const getUniswapV3Fees = (graphUrls: IGraphUrls) => {
   const graphQuery = gql`query fees($dateId: Int!) {

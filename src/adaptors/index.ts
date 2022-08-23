@@ -4,6 +4,8 @@ import quickswap from "./quickswap";
 import uniswap from "./uniswap";
 import spookyswap from "./spookyswap";
 import traderjoe from "./traderjoe";
+import pancakeswap from "./pancakeswap";
+import balancer from "./balancer";
 
 export default { 
     sushiswap,
@@ -11,5 +13,7 @@ export default {
     quickswap,
     uniswap,
     spookyswap,
-    traderjoe
+    traderjoe,
+    pancakeswap,
+    balancer
 };
