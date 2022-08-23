@@ -35,6 +35,16 @@ export const getTimestampAtStartOfDayUTC = (timestamp: number) => {
   return Math.floor(timestamp / 86400) * 86400;
 };
 
+export const getTimestampAtStartOfPreviousDayUTC = (timestamp: number) => {
+  const date = new Date(timestamp * 1000);
+  var date_utc = Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate() - 1
+  );
+  return date_utc / 1000;
+};
+
 export const getTimestampAtStartOfNextDayUTC = (timestamp: number) => {
   const date = new Date(timestamp * 1000);
   var date_utc = Date.UTC(

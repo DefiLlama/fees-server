@@ -5,4 +5,6 @@ export default {
     "uniswap": require("../../adaptors/uniswap"),
     "spookyswap": require("../../adaptors/spookyswap"),
     "traderjoe": require("../../adaptors/traderjoe"),
+    "pancakeswap": require("../../adaptors/pancakeswap"),
+    "balancer": require("../../adaptors/balancer"),
 }
