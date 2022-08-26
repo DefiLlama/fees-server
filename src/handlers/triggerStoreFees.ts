@@ -1,6 +1,6 @@
 import { wrapScheduledLambda } from "../utils/wrap";
 // TODO pull fees from db
-import feeAdapters from "../utils/adapterData";
+import { protocolFeeAdapters } from "../utils/adapters";
 import invokeLambda from "../utils/invokeLambda";
 
 function shuffleArray(array: number[]) {
@@ -12,9 +12,9 @@ function shuffleArray(array: number[]) {
 
 const step = 10;
 const handler = async () => {
-  const protocolIndexes = Array.from(Array(feeAdapters.length).keys());
+  const protocolIndexes = Array.from(Array(protocolFeeAdapters.length).keys());
   shuffleArray(protocolIndexes);
-  for (let i = 0; i < feeAdapters.length; i += step) {
+  for (let i = 0; i < protocolFeeAdapters.length; i += step) {
     const event = {
       protocolIndexes: protocolIndexes.slice(i, i + step),
     };
