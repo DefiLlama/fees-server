@@ -2,7 +2,7 @@ import { getTimestampAtStartOfDayUTC } from "../utils/date";
 import { successResponse, wrap, IResponse } from "../utils";
 import sluggify from "../utils/sluggify";
 import { getFees, Fee, FeeType } from "../utils/data/fees";
-import feeAdapters from "../utils/adapterData";
+import { protocolAdapterData } from "../utils/adapters";
 import { Protocol } from "../utils/protocols/types"
 import { summAllFees } from "../utils/feeCalcs";
 import { IRecordFeeData } from "./storeFees";
@@ -21,7 +21,7 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
   const protocolName = event.pathParameters?.protocol?.toLowerCase()
   if (!protocolName) throw new Error("Missing protocol name!")
 
-  const feeData = feeAdapters.find(
+  const feeData = protocolAdapterData.find(
       (prot) => sluggify(prot) === protocolName
   );
   if (!feeData) throw new Error("Fee data not found!")
