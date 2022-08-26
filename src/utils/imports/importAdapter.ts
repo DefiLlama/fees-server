@@ -1,5 +1,5 @@
 import adapters from "./adaptors"
-import { Adaptor } from "../adapterData"
+import { Adaptor } from "../adapters"
 
 export function importFeesAdapter(adaptor: Adaptor) {
     return (adapters as any)[`${adaptor.adapterKey}`]

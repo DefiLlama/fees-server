@@ -2,10 +2,9 @@ import { getChainBlocks } from "@defillama/sdk/build/computeTVL/blocks";
 
 import { wrapScheduledLambda } from "../utils/wrap";
 import { getTimestampAtStartOfDayUTC } from "../utils/date";
-import feeAdapters from "../utils/adapterData";
+import { protocolAdapterData, getAllChainsFromAdapters } from "../utils/adapters";
 import { BaseAdapter, FeeAdapter } from "../utils/adapters.type";
 import { handleAdapterError } from "../utils";
-import getAllChainsFromDexAdapters from "../utils/dexAdapters";
 import allSettled from 'promise.allsettled'
 import { importFeesAdapter } from "../utils/imports/importAdapter";
 import { storeFees, Fee, FeeType } from "../utils/data/fees";
@@ -28,7 +27,7 @@ export const handler = async (event: IHandlerEvent) => {
   const fetchCurrentDayTimestamp = getTimestampAtStartOfDayUTC(currentTimestamp);
 
   // Get closest block to clean day. Only for EVM compatible ones.
-  const allChains = getAllChainsFromDexAdapters()
+  const allChains = getAllChainsFromAdapters()
   const chainBlocks = await getChainBlocks(fetchCurrentDayTimestamp, allChains);
 
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
@@ -45,11 +44,11 @@ export const handler = async (event: IHandlerEvent) => {
   // TODO: change for allSettled, also incorporate non DEX fees at some point
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
     // Get info
-    const { id, adapterKey } = feeAdapters[protocolIndex];
+    const { id, adapterKey } = protocolAdapterData[protocolIndex];
 
     try {
       // Import adapter
-      const adapter: FeeAdapter = (await importFeesAdapter(feeAdapters[protocolIndex])).default;
+      const adapter: FeeAdapter = (await importFeesAdapter(protocolAdapterData[protocolIndex])).default;
 
       // Retrieve daily fees
       let rawDailyFees: IRecordFeeData[] = []

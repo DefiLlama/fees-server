@@ -5,9 +5,9 @@ require('dotenv').config()
 AWS.config.update({ region: 'eu-central-1' });
 
 import { handler } from "../src/handlers/storeFees";
-import feeAdapters from "../src/utils/adapterData";
+import { protocolAdapterData } from "../src/utils/adapters";
 
 handler({
-    protocolIndexes: [feeAdapters.findIndex(va => va.id==='119')],
-    timestamp: 1640991600000/1000
+    protocolIndexes: [protocolAdapterData.findIndex(va => va.id==='1')], // 468
+    timestamp: 1661547462
 })

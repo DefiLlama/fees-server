@@ -6,6 +6,7 @@ import spookyswap from "./spookyswap";
 import traderjoe from "./traderjoe";
 import pancakeswap from "./pancakeswap";
 import balancer from "./balancer";
+import makerdao from "./makerdao";
 
 export default { 
     sushiswap,
@@ -15,5 +16,6 @@ export default {
     spookyswap,
     traderjoe,
     pancakeswap,
-    balancer
+    balancer,
+    makerdao
 };
