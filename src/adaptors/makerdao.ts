@@ -25,30 +25,38 @@ const graphs = (graphUrls: IGraphUrls) => {
       const yesterdaysBlock = (await getBlock(yesterdaysTimestamp, chain, {}));
 
       const graphQuery = gql
-      `query fees($yesterdaysBlock: Int!, $todaysBlock: Int!){
-        yesterday: collateralTypes(block: {number: $yesterdaysBlock}) {
+      `query fees {
+        yesterday: collateralTypes(block: {number: ${yesterdaysBlock}}) {
           id
           totalDebt
           stabilityFee
         }
-        today: collateralTypes(block: {number: $todaysBlock}) {
+        today: collateralTypes(block: {number: ${todaysBlock}}) {
           id
           totalDebt
           stabilityFee
         }
       }`;
 
-      const graphRes = await request(graphUrls[chain], graphQuery, {
-        yesterdaysBlock,
-        todaysBlock
-      });
+      const graphRes = await request(graphUrls[chain], graphQuery);
 
       const secondsBetweenDates = todaysTimestamp - yesterdaysTimestamp;
-      const avgDebt = (new BigNumber(graphRes["today"]["totalDebt"]).plus(new BigNumber(graphRes["yesterday"]["totalDebt"]))).div(2)
-      const accFees = new BigNumber(graphRes["yesterday"]["stabilityFee"]).pow(secondsBetweenDates).minus(1)
-      const dailyFee = avgDebt.multipliedBy(accFees)
+      
+      const todayDebts: { [id: string]: BigNumber } = {};
+      let dailyFee = new BigNumber(0)
 
-      console.log(dailyFee.toString())
+      for (const collateral of graphRes["today"]) {
+        todayDebts[collateral.id] = new BigNumber(collateral["totalDebt"]);
+      }
+
+      for (const collateral of graphRes["yesterday"]) {
+        if (todayDebts[collateral.id]) {
+          const avgDebt = todayDebts[collateral.id].plus(new BigNumber(collateral["totalDebt"])).div(2)
+          const accFees = new BigNumber(Math.pow(collateral["stabilityFee"], secondsBetweenDates) - 1)
+          dailyFee = dailyFee.plus(avgDebt.multipliedBy(accFees))
+        }
+      }
+
       return {
         timestamp,
         totalFees: "0",
