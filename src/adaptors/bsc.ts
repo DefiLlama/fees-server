@@ -40,7 +40,7 @@ const graphs = (graphUrls: IGraphUrls) => {
       const dailyFee = new BigNumber(graphRes["today"]["totalFees"]).minus(new BigNumber(graphRes["yesterday"]["totalFees"]))
 
       const bnbAddress = "bsc:0x0000000000000000000000000000000000000000";
-      const pricesObj: any = await getPrices([bnbAddress]);
+      const pricesObj: any = await getPrices([bnbAddress], todaysTimestamp);
       const latestPrice = new BigNumber(pricesObj[bnbAddress]["price"])
 
       const finalDailyFee = dailyFee.multipliedBy(latestPrice)
