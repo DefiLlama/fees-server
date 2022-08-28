@@ -42,8 +42,8 @@ export const handler = async (): Promise<IResponse> => {
             dailyRevenue: f.data,
             timestamp: f.sk
         })),
-        cumulativeFees: todaysFees ? summAllFees(todaysFees) : 0,
-        cumulativeRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
+        total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
+        total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
       }
 
       feeItems.push(feeItem)

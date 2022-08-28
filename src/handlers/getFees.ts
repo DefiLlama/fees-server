@@ -20,8 +20,8 @@ export interface RevenueHistoryItem {
 export interface IHandlerBodyResponse extends Protocol {
     feesHistory: FeeHistoryItem[] | null
     revenueHistory: RevenueHistoryItem[] | null
-    cumulativeFees: number | null
-    cumulativeRevenue: number | null
+    total1dFees: number | null
+    total1dRevenue: number | null
 }
 
 export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IResponse> => {
@@ -54,8 +54,8 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
               dailyRevenue: f.data,
               timestamp: f.sk
           })),
-          cumulativeFees: todaysFees ? summAllFees(todaysFees) : 0,
-          cumulativeRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
+          total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
+          total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
       }
       feeDataResponse = ddr
   } catch (error) {
@@ -64,8 +64,8 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
           ...feeData,
           revenueHistory: [],
           feesHistory: [],
-          cumulativeFees: null,
-          cumulativeRevenue: null
+          total1dFees: null,
+          total1dRevenue: null
       }
       feeDataResponse = ddr
   }
