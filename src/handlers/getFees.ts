@@ -41,6 +41,8 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       if (rev instanceof Fee) throw new Error("Wrong rev queried")
 
       const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
+      console.log(todaysTimestamp)
+      console.log(fee)
       const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
       const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
 
