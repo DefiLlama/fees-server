@@ -17,13 +17,21 @@ export const handler = async (): Promise<IResponse> => {
       const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
       const rev = await getFees(feeData.id, FeeType.dailyRevenue, "ALL")
 
-      if (fee instanceof Fee) throw new Error("Wrong fee queried")
-      if (rev instanceof Fee) throw new Error("Wrong rev queried")
+      if (fee instanceof Fee) {
+        console.log(`Wrong fee queried for ${feeData}`)
+        return
+      }
+      if (rev instanceof Fee) {
+        console.log(`Wrong rev queried for ${feeData}`)
+        return
+      }
 
       const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
       const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
       const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
 
+      console.log(todaysFees)
+      console.log(todaysRevenue)
       const feeItem: FeeItem = {
         ...feeData,
         feesHistory: fee.map<FeeHistoryItem>(f => ({

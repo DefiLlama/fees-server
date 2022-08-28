@@ -44,8 +44,6 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
       const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
 
-      console.log(todaysFees)
-      console.log(todaysRevenue)
       const ddr: IHandlerBodyResponse = {
           ...feeData,
           feesHistory: fee.map<FeeHistoryItem>(f => ({
@@ -64,8 +62,8 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       console.error(error)
       const ddr: IHandlerBodyResponse = {
           ...feeData,
-          revenueHistory: null,
-          feesHistory: null,
+          revenueHistory: [],
+          feesHistory: [],
           cumulativeFees: null,
           cumulativeRevenue: null
       }
