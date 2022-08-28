@@ -31,7 +31,7 @@ const getAllFees = () => {
 
     console.log(todaysFees)
     console.log(todaysRevenue)
-    const feeItem: FeeItem = {
+    const feeItemObj: FeeItem = {
       ...feeData,
       feesHistory: fee.map<FeeHistoryItem>(f => ({
           dailyFees: f.data,
@@ -45,8 +45,9 @@ const getAllFees = () => {
       total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
     }
 
-    feeItems.push(feeItem)
+    feeItems.push(feeItemObj)
   })
+  console.log(feeItems)
 
   return feeItems
 }

@@ -130,8 +130,6 @@ export const handler = async (event: IHandlerEvent) => {
     }
   }))
 
-  // TODO: check if all adapters were success
-  console.log(feeResponses)
   return
 };
 
