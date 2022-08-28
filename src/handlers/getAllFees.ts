@@ -33,9 +33,10 @@ export const handler = async (): Promise<IResponse> => {
       return
     }
 
-    const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
-    const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
-    const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
+    // TODO: Create option to get a timestamp
+    const latestTimestamp = fee.map(v => getTimestampAtStartOfDayUTC(v.timestamp)).sort((n1, n2) => n1 - n2)[0]
+    const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
+    const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
 
     const feeItemObj: FeeItem = {
       name: feeData.adapterKey,

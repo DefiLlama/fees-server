@@ -40,12 +40,10 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       if (fee instanceof Fee) throw new Error("Wrong fee queried")
       if (rev instanceof Fee) throw new Error("Wrong rev queried")
 
-      const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
-      console.log(todaysTimestamp)
-      const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
-      const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
-      console.log(todaysFees)
-      console.log(todaysRevenue)
+      // TODO: Create option to get a timestamp
+      const latestTimestamp = fee.map(v => getTimestampAtStartOfDayUTC(v.timestamp)).sort((n1, n2) => n1 - n2)[0]
+      const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
+      const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
 
       const ddr: IHandlerBodyResponse = {
           ...feeData,
