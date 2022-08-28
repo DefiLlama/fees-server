@@ -11,14 +11,14 @@ export enum FeeType {
 export class Fee extends Item {
     data: IRecordFeeData
     type: FeeType
-    dexId: string
+    protocolId: string
     timestamp: number
 
-    constructor(type: FeeType, dexId: string, timestamp: number, data: IRecordFeeData) {
+    constructor(type: FeeType, protocolId: string, timestamp: number, data: IRecordFeeData) {
         super()
         this.data = data
         this.type = type
-        this.dexId = dexId
+        this.protocolId = protocolId
         this.timestamp = timestamp
     }
 
@@ -27,17 +27,17 @@ export class Fee extends Item {
         if (!item.PK || !item.SK) throw new Error("Bad item!")
         // PK=df#dex#{id}
         // TODO: update dynamodb types with correct sdk
-        const dexId = (item.PK as string).split("#")[2]
+        const protocolId = (item.PK as string).split("#")[2]
         const recordType = (item.PK as string).split("#")[0] as FeeType
         const body = item as IRecordFeeData
         const timestamp = +item.SK
         delete body.PK;
         delete body.SK;
-        return new Fee(recordType, dexId, timestamp, body)
+        return new Fee(recordType, protocolId, timestamp, body)
     }
 
     get pk(): string {
-        return `${this.type}#dex#${this.dexId}`
+        return `${this.type}#${this.protocolId}`
     }
 
     get sk(): number {
