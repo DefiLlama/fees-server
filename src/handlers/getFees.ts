@@ -71,8 +71,7 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       feeDataResponse = ddr
   }
 
-//   return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
-  return successResponse(feeDataResponse as IHandlerBodyResponse); // no cache for testing
+  return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
 };
 
 export default wrap(handler);
