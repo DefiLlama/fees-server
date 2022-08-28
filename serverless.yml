@@ -65,7 +65,6 @@ provider:
     HARMONY_RPC: ${file(./env.js):HARMONY_RPC}
     AVAX_RPC: ${file(./env.js):AVAX_RPC}
     XDAI_RPC: ${file(./env.js):XDAI_RPC}
-    CELO_RPC: ${file(./env.js):CELO_RPC}
     tableName: ${self:custom.tableName}
     stage: ${self:custom.stage}
 

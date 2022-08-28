@@ -12,6 +12,5 @@ module.exports = {
     CRONOS_RPC: process.env.CRONOS_RPC,
     MOONRIVER_RPC: process.env.MOONRIVER_RPC,
     AVAX_RPC: process.env.AVAX_RPC,
-    XDAI_RPC: process.env.XDAI_RPC,
-    CELO_RPC: process.env.CELO_RPC
+    XDAI_RPC: process.env.XDAI_RPC
 }

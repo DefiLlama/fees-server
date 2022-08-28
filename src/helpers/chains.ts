@@ -2,7 +2,6 @@ const ARBITRUM = "arbitrum";
 const AVAX = "avax";
 const BOBA = "boba";
 const BSC = "bsc";
-const CELO = "celo";
 const ETHEREUM = "ethereum";
 const FANTOM = "fantom";
 const HARMONY = "harmony";
@@ -19,7 +18,6 @@ export {
   AVAX,
   BOBA,
   BSC,
-  CELO,
   ETHEREUM,
   FANTOM,
   HARMONY,

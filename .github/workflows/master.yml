@@ -35,4 +35,3 @@ jobs:
         CRONOS_RPC: ${{ secrets.CRONOS_RPC }}
         AVAX_RPC: ${{ secrets.AVAX_RPC }}
         XDAI_RPC: ${{ secrets.XDAI_RPC }}
-        CELO_RPC: ${{ secrets.CELO_RPC }}
