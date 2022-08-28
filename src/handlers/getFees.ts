@@ -12,9 +12,16 @@ export interface FeeHistoryItem {
   timestamp: number;
 }
 
+export interface RevenueHistoryItem {
+  dailyRevenue: IRecordFeeData;
+  timestamp: number;
+}
+
 export interface IHandlerBodyResponse extends Protocol {
     feesHistory: FeeHistoryItem[] | null
-    total1dFees: number | null
+    revenueHistory: RevenueHistoryItem[] | null
+    cumulativeFees: number | null
+    cumulativeRevenue: number | null
 }
 
 export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IResponse> => {
@@ -28,27 +35,39 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
   let feeDataResponse = {}
   try {
       const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
+      const rev = await getFees(feeData.id, FeeType.dailyRevenue, "ALL")
 
       if (fee instanceof Fee) throw new Error("Wrong fee queried")
+      if (rev instanceof Fee) throw new Error("Wrong rev queried")
 
       const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
       const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
+      const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
 
+      console.log(todaysFees)
+      console.log(todaysRevenue)
       const ddr: IHandlerBodyResponse = {
           ...feeData,
           feesHistory: fee.map<FeeHistoryItem>(f => ({
               dailyFees: f.data,
               timestamp: f.sk
           })),
-          total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
+          revenueHistory: rev.map<RevenueHistoryItem>(f => ({
+              dailyRevenue: f.data,
+              timestamp: f.sk
+          })),
+          cumulativeFees: todaysFees ? summAllFees(todaysFees) : 0,
+          cumulativeRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
       }
       feeDataResponse = ddr
   } catch (error) {
       console.error(error)
       const ddr: IHandlerBodyResponse = {
           ...feeData,
+          revenueHistory: null,
           feesHistory: null,
-          total1dFees: null
+          cumulativeFees: null,
+          cumulativeRevenue: null
       }
       feeDataResponse = ddr
   }
