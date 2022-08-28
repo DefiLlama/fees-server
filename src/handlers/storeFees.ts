@@ -41,16 +41,13 @@ export const handler = async (event: IHandlerEvent) => {
     }))))
   }
 
-  // TODO: change for allSettled, also incorporate non DEX fees at some point
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
-    // Get info
     const { id, adapterKey } = protocolAdapterData[protocolIndex];
 
     try {
       // Import adapter
       const adapter: FeeAdapter = (await importFeesAdapter(protocolAdapterData[protocolIndex])).default;
 
-      // Retrieve daily fees
       let rawDailyFees: IRecordFeeData[] = []
       let rawDailyRevenue: IRecordFeeData[] = []
       if ("fees" in adapter) {
