@@ -79,9 +79,9 @@ function createExpressionAttributeValuesFromObj(obj: IRecordFeeData): Record<str
     }, {} as Record<string, unknown>)
 }
 
-export const getFees = async (dex: string, type: FeeType, mode: "ALL" | "LAST" = "ALL"): Promise<Fee[] | Fee> => {
+export const getFees = async (protocolId: string, type: FeeType, mode: "ALL" | "LAST" = "ALL"): Promise<Fee[] | Fee> => {
     // Creating dummy object to get the correct key
-    const fee = new Fee(type, dex, null!, null!)
+    const fee = new Fee(type, protocolId, null!, null!)
     try {
         const resp = await dynamodb.query({
             // TODO: Change for upsert like

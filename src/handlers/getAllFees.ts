@@ -3,16 +3,24 @@ import { successResponse, wrap, IResponse } from "../utils";
 import { getFees, Fee, FeeType } from "../utils/data/fees";
 import { protocolAdapterData } from "../utils/adapters";
 import { summAllFees } from "../utils/feeCalcs";
-import { FeeHistoryItem, RevenueHistoryItem, IHandlerBodyResponse as FeeItem } from "./getFees";
+import allSettled from 'promise.allsettled'
+import { FeeHistoryItem, RevenueHistoryItem } from "./getFees";
+
+export interface FeeItem {
+  name: string
+  feesHistory: FeeHistoryItem[] | null
+  revenueHistory: RevenueHistoryItem[] | null
+  total1dFees: number | null
+  total1dRevenue: number | null
+}
 
 export interface IHandlerBodyResponse {
   fees: FeeItem[],
 }
 
-const getAllFees = () => {
-  let feeItems: FeeItem[] = []
+export const handler = async (): Promise<IResponse> => {
 
-  protocolAdapterData.forEach(async (feeData) => {
+  const feeItems: any[] = await allSettled(protocolAdapterData.map(async (feeData) => {
     const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
     const rev = await getFees(feeData.id, FeeType.dailyRevenue, "ALL")
 
@@ -29,10 +37,8 @@ const getAllFees = () => {
     const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
     const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
 
-    console.log(todaysFees)
-    console.log(todaysRevenue)
     const feeItemObj: FeeItem = {
-      ...feeData,
+      name: feeData.adapterKey,
       feesHistory: fee.map<FeeHistoryItem>(f => ({
           dailyFees: f.data,
           timestamp: f.sk
@@ -44,17 +50,12 @@ const getAllFees = () => {
       total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
       total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
     }
+    
+    return feeItemObj
+  })).then(result => result.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value))
 
-    feeItems.push(feeItemObj)
-  })
-  console.log(feeItems)
-
-  return feeItems
-}
-
-export const handler = async (): Promise<IResponse> => {
   const feeDataResponse = {
-    fees: getAllFees()
+    fees: feeItems
   }
   // return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
   return successResponse(feeDataResponse as IHandlerBodyResponse); // no cache for testing

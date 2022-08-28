@@ -42,9 +42,10 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
 
       const todaysTimestamp = getTimestampAtStartOfDayUTC((Date.now() - 1000 * 60 * 60 * 24) / 1000);
       console.log(todaysTimestamp)
-      console.log(fee)
       const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
       const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === todaysTimestamp)?.data
+      console.log(todaysFees)
+      console.log(todaysRevenue)
 
       const ddr: IHandlerBodyResponse = {
           ...feeData,
@@ -72,7 +73,7 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
       feeDataResponse = ddr
   }
 
-  // return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
+//   return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
   return successResponse(feeDataResponse as IHandlerBodyResponse); // no cache for testing
 };
 
