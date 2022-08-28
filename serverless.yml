@@ -9,6 +9,7 @@ provider:
   runtime: nodejs16.x
   memorySize: 250
   region: eu-central-1
+  endpointType: REGIONAL # Set to regional because the api gateway will be behind a cloudfront distribution
   stage: dev # Default to dev if no stage is specified
   tracing: # Enable X-Ray tracing (debugging)
     apiGateway: true
@@ -93,6 +94,14 @@ custom:
   hostedZone: ${self:custom.domainMap.${self:custom.stage}.hostedZone}
 
 functions:
+  getAllFees:
+    handler: src/handlers/getAllFees.default
+    timeout: 900
+    memorySize: 512
+    events:
+      - http:
+          path: fees
+          method: get
   getFees:
     handler: src/handlers/getFees.default
     timeout: 900
