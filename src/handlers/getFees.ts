@@ -1,9 +1,7 @@
 import { getTimestampAtStartOfDayUTC } from "../utils/date";
 import { successResponse, wrap, IResponse } from "../utils";
-import sluggify from "../utils/sluggify";
 import { getFees, Fee, FeeType } from "../utils/data/fees";
 import { protocolAdapterData } from "../utils/adapters";
-import { Protocol } from "../utils/protocols/types"
 import { summAllFees } from "../utils/feeCalcs";
 import { IRecordFeeData } from "./storeFees";
 
@@ -20,6 +18,7 @@ export interface RevenueHistoryItem {
 export interface IHandlerBodyResponse {
     name: string
     adapterKey: string
+    tokenSymbol?: string
     feesHistory: FeeHistoryItem[] | null
     revenueHistory: RevenueHistoryItem[] | null
     total1dFees: number | null

@@ -9,6 +9,7 @@ import { FeeHistoryItem, RevenueHistoryItem } from "./getFees";
 export interface FeeItem {
   name: string
   adapterKey: string
+  tokenSymbol?: string
   feesHistory: FeeHistoryItem[] | null
   revenueHistory: RevenueHistoryItem[] | null
   total1dFees: number | null
@@ -40,8 +41,7 @@ export const handler = async (): Promise<IResponse> => {
     const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
 
     const feeItemObj: FeeItem = {
-      name: feeData.name,
-      adapterKey: feeData.adapterKey,
+      ...feeData,
       feesHistory: fee.map<FeeHistoryItem>(f => ({
           dailyFees: f.data,
           timestamp: f.sk
