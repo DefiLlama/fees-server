@@ -1,6 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
 import { ETHEREUM } from "../helpers/chains";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";

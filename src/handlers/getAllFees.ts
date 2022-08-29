@@ -8,6 +8,7 @@ import { FeeHistoryItem, RevenueHistoryItem } from "./getFees";
 
 export interface FeeItem {
   name: string
+  adapterKey: string
   feesHistory: FeeHistoryItem[] | null
   revenueHistory: RevenueHistoryItem[] | null
   total1dFees: number | null
@@ -39,7 +40,8 @@ export const handler = async (): Promise<IResponse> => {
     const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
 
     const feeItemObj: FeeItem = {
-      name: feeData.adapterKey,
+      name: feeData.name,
+      adapterKey: feeData.adapterKey,
       feesHistory: fee.map<FeeHistoryItem>(f => ({
           dailyFees: f.data,
           timestamp: f.sk
@@ -56,7 +58,7 @@ export const handler = async (): Promise<IResponse> => {
   })).then(result => result.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value))
 
   const feeDataResponse = {
-    fees: feeItems
+    fees: feeItems.sort((item1, item2) => item1.total1dFees - item2.total1dFees)
   }
   return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
 };
