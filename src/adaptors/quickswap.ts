@@ -1,5 +1,5 @@
 import { getDexChainFeesRaw } from "../helpers/getUniSubgraphFees";
-import { DexFeeAdapter } from "../utils/adapters.type";
+import { FeeAdapter } from "../utils/adapters.type";
 import { POLYGON } from "../helpers/chains";
 import { Chain } from "@defillama/sdk/build/general";
 
@@ -29,7 +29,7 @@ const fees = Object.keys(endpoints).reduce(
   {}
 );
 
-const adapter: DexFeeAdapter = {
+const adapter: FeeAdapter = {
     fees,
 };
 

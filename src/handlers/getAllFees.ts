@@ -22,8 +22,8 @@ export interface IHandlerBodyResponse {
 export const handler = async (): Promise<IResponse> => {
 
   const feeItems: any[] = await allSettled(protocolAdapterData.map(async (feeData) => {
-    const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
-    const rev = await getFees(feeData.id, FeeType.dailyRevenue, "ALL")
+    const fee = await getFees(feeData.id, feeData.adapterType, FeeType.dailyFees, "ALL")
+    const rev = await getFees(feeData.id, feeData.adapterType, FeeType.dailyRevenue, "ALL")
 
     if (fee instanceof Fee) {
       console.log(`Wrong fee queried for ${feeData}`)

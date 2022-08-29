@@ -1,4 +1,4 @@
-import { ChainBlocks, DexAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
+import { ChainBlocks, DexAdapter, FetchResult as VolumeFetchResult, VolumeAdapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
 import { Chain } from "@defillama/sdk/build/general";
 
 import BigNumber from "bignumber.js";
@@ -80,13 +80,16 @@ const getUniswapV3Fees = (graphUrls: IGraphUrls) => {
 const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGetChainFeeParams) => {
   if ('breakdown' in volumeAdapter) {
     let breakdownAdapter: BreakdownAdapter = { }
+    const volumeBreakdownAdapter: VolumeBreakdownAdapter = volumeAdapter.breakdown
 
-    for (const [version, adapterObj] of Object.entries(volumeAdapter.breakdown)) {
-      const baseAdapters = Object.keys(adapterObj).map(chain => {
+    for (const [version, adapterObj] of Object.entries(volumeBreakdownAdapter)) {
+      const volAdapter: VolumeAdapter = adapterObj
+      
+      const baseAdapters = Object.keys(volAdapter).map(chain => {
         const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
-          const fetchedResult = await adapterObj[chain].fetch(timestamp, chainBlocks)
+          const fetchedResult: VolumeFetchResult = await volAdapter[chain].fetch(timestamp, chainBlocks)
           const chainDailyVolume = fetchedResult.dailyVolume ? fetchedResult.dailyVolume : "0";
-          const chainTotalVolume = fetchedResult.totalVolume;
+          const chainTotalVolume = fetchedResult.totalVolume ? fetchedResult.totalVolume : "0";
     
           return {
             timestamp,
@@ -99,7 +102,7 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
 
         const baseAdapter: BaseAdapter = {
           [chain]: {
-            ...adapterObj[chain],
+            ...volAdapter[chain],
             fetch: fetchFees,
             customBackfill: fetchFees,
           }
@@ -127,7 +130,7 @@ const getDexChainFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGe
       const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
         const fetchedResult = await adapterObj[chain].fetch(timestamp, chainBlocks)
         const chainDailyVolume = fetchedResult.dailyVolume ? fetchedResult.dailyVolume : "0";
-        const chainTotalVolume = fetchedResult.totalVolume;
+        const chainTotalVolume = fetchedResult.totalVolume ? fetchedResult.totalVolume : "0";
   
         return {
           timestamp,

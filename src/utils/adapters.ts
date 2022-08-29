@@ -1,8 +1,10 @@
 import feeAdaptors from "../adaptors";
 import { FeeAdapter } from "./adapters.type";
 import data from "./protocols/data";
+import chains from "./protocols/chains";
 import { Protocol } from "./protocols/types";
 import { Chain } from "./constants";
+import axios from 'axios'
 
 export interface IAdapterInfo {
   id: string
@@ -18,10 +20,11 @@ export async function handleAdapterError(e: Error, adapterInfo?: IAdapterInfo) {
   throw new Error(`Couldn´t get data for ${JSON.stringify(adapterInfo)}`)
 }
 
-export interface Adaptor extends Protocol{
+export interface Adaptor {
     id: string;
     name: string;
     adapterKey: string;
+    adapterType: string;
 }
 
 export function notUndefined<T>(x: T | undefined): x is T {
@@ -30,12 +33,15 @@ export function notUndefined<T>(x: T | undefined): x is T {
 
 const allFeeAdapters: Record<string, FeeAdapter> = feeAdaptors;
 
-export const protocolFeeAdapters: FeeAdapter[] = Object.keys(allFeeAdapters).map(adapterKey => {
-    const foundInProtocols = data.find(protocol =>
+export const protocolFeeAdapters: FeeAdapter[] = Object.entries(allFeeAdapters).map(adapterObj => {
+    const [adapterKey, adapter] = adapterObj
+    const adapterType = adapter.adapterType
+    
+    const foundInProtocols = !adapterType ? data.find(protocol =>
         protocol.name.toLowerCase()?.includes(adapterKey)
         || protocol.gecko_id?.includes(adapterKey)
         || protocol.module.split("/")[0]?.includes(adapterKey)
-    )
+    ) : chains.find(chain => chain.gecko_id?.toLowerCase().includes(adapterKey) || chain.name.toLowerCase().includes(adapterKey))
     if (foundInProtocols) {
         return allFeeAdapters[adapterKey]
     }
@@ -44,17 +50,36 @@ export const protocolFeeAdapters: FeeAdapter[] = Object.keys(allFeeAdapters).map
     return undefined
 }).filter(notUndefined);
 
-export const protocolAdapterData: Adaptor[] = Object.keys(allFeeAdapters).map(adapterKey => {
-    const foundInProtocols = data.find(protocol =>
-        protocol.name.toLowerCase()?.includes(adapterKey)
-        || protocol.gecko_id?.includes(adapterKey)
-        || protocol.module.split("/")[0]?.includes(adapterKey)
-    )
-    if (foundInProtocols) {
-        return {
-            ...foundInProtocols,
-            adapterKey
+export const protocolAdapterData: Adaptor[] = Object.entries(allFeeAdapters).map(adapterObj => {
+    const [adapterKey, adapter] = adapterObj
+    const adapterType = adapter.adapterType
+
+    if (!adapterType) {
+        const foundInProtocols = data.find(protocol =>
+            protocol.name.toLowerCase()?.includes(adapterKey)
+            || protocol.gecko_id?.includes(adapterKey)
+            || protocol.module.split("/")[0]?.includes(adapterKey)
+        )
+        if (foundInProtocols) {
+            return {
+                ...foundInProtocols,
+                adapterType: "protocol",
+                adapterKey
+            }
         }
+    } else if (adapterType === "chain") {
+        const foundInChains = chains.find(chain => chain.gecko_id?.toLowerCase().includes(adapterKey) || chain.name.toLowerCase().includes(adapterKey))
+        if (foundInChains)  {
+            return {
+                id: foundInChains.chainId ? foundInChains.chainId.toString() : "",
+                name: foundInChains.name,
+                symbol: foundInChains.tokenSymbol,
+                gecko_id: foundInChains.gecko_id,
+                cmcId: foundInChains.cmcId,
+                adapterType,
+                adapterKey
+            }
+        } 
     }
     // TODO: Handle better errors
     console.error(`Missing info for ${adapterKey}!`)

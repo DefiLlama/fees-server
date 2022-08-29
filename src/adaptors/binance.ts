@@ -1,6 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
 import { BSC } from "../helpers/chains";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
@@ -64,7 +63,8 @@ const adapter: FeeAdapter = {
         fetch: graphs(endpoints)(BSC),
         start: 1598671449,
     },
-  }
+  },
+  adapterType: "chain"
 }
 
 export default adapter;

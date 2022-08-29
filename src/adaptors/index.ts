@@ -7,7 +7,7 @@ import traderjoe from "./traderjoe";
 import pancakeswap from "./pancakeswap";
 import balancer from "./balancer";
 import makerdao from "./makerdao";
-import bsc from "./bsc"
+import binance from "./binance"
 
 export default { 
     sushiswap,
@@ -19,5 +19,5 @@ export default {
     pancakeswap,
     balancer,
     makerdao,
-    bsc
+    binance
 };

@@ -12,13 +12,15 @@ export class Fee extends Item {
     data: IRecordFeeData
     type: FeeType
     protocolId: string
+    protocolType: string
     timestamp: number
 
-    constructor(type: FeeType, protocolId: string, timestamp: number, data: IRecordFeeData) {
+    constructor(type: FeeType, protocolId: string, protocolType: string, timestamp: number, data: IRecordFeeData) {
         super()
         this.data = data
         this.type = type
         this.protocolId = protocolId
+        this.protocolType = protocolType
         this.timestamp = timestamp
     }
 
@@ -28,16 +30,17 @@ export class Fee extends Item {
         // PK=df#dex#{id}
         // TODO: update dynamodb types with correct sdk
         const protocolId = (item.PK as string).split("#")[2]
+        const protocolType = (item.PK as string).split("#")[1]
         const recordType = (item.PK as string).split("#")[0] as FeeType
         const body = item as IRecordFeeData
         const timestamp = +item.SK
         delete body.PK;
         delete body.SK;
-        return new Fee(recordType, protocolId, timestamp, body)
+        return new Fee(recordType, protocolId, protocolType, timestamp, body)
     }
 
     get pk(): string {
-        return `${this.type}#${this.protocolId}`
+        return `${this.type}#${this.protocolType}#${this.protocolId}`
     }
 
     get sk(): number {
@@ -79,9 +82,9 @@ function createExpressionAttributeValuesFromObj(obj: IRecordFeeData): Record<str
     }, {} as Record<string, unknown>)
 }
 
-export const getFees = async (protocolId: string, type: FeeType, mode: "ALL" | "LAST" = "ALL"): Promise<Fee[] | Fee> => {
+export const getFees = async (protocolId: string, protocolType: string, type: FeeType, mode: "ALL" | "LAST" = "ALL"): Promise<Fee[] | Fee> => {
     // Creating dummy object to get the correct key
-    const fee = new Fee(type, protocolId, null!, null!)
+    const fee = new Fee(type, protocolId, protocolType, null!, null!)
     try {
         const resp = await dynamodb.query({
             // TODO: Change for upsert like

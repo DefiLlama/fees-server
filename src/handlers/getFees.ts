@@ -29,13 +29,13 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
   if (!protocolName) throw new Error("Missing protocol name!")
 
   const feeData = protocolAdapterData.find(
-      (prot) => sluggify(prot) === protocolName
+      (prot) => prot.name === protocolName
   );
   if (!feeData) throw new Error("Fee data not found!")
   let feeDataResponse = {}
   try {
-      const fee = await getFees(feeData.id, FeeType.dailyFees, "ALL")
-      const rev = await getFees(feeData.id, FeeType.dailyRevenue, "ALL")
+      const fee = await getFees(feeData.id, feeData.adapterType, FeeType.dailyFees, "ALL")
+      const rev = await getFees(feeData.id, feeData.adapterType, FeeType.dailyRevenue, "ALL")
 
       if (fee instanceof Fee) throw new Error("Wrong fee queried")
       if (rev instanceof Fee) throw new Error("Wrong rev queried")

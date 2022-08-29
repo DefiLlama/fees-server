@@ -1,6 +1,6 @@
 import { getDexChainFees } from "../helpers/getUniSubgraphFees";
 import volumeAdapter from "@defillama/adapters/dexVolumes/traderjoe";
-import { DexFeeAdapter, BaseAdapter } from "../utils/adapters.type";
+import { FeeAdapter, BaseAdapter } from "../utils/adapters.type";
 
 const TOTAL_FEES = 0.003;
 const PROTOCOL_FEES = 0.0005;
@@ -11,7 +11,7 @@ const feeAdapter: BaseAdapter = getDexChainFees({
   volumeAdapter
 });
 
-const adapter: DexFeeAdapter = {
+const adapter: FeeAdapter = {
     fees: feeAdapter
 };
 

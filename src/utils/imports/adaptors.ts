@@ -8,5 +8,5 @@ export default {
     "pancakeswap": require("../../adaptors/pancakeswap"),
     "balancer": require("../../adaptors/balancer"),
     "makerdao": require("../../adaptors/makerdao"),
-    "bsc": require("../../adaptors/bsc"), 
+    "binance": require("../../adaptors/binance"), 
 }

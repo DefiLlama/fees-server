@@ -116,9 +116,10 @@ export const handler = async (event: IHandlerEvent) => {
       }, {} as IRecordFeeData)
       console.log("Retrieved", "fees", id, fetchCurrentDayTimestamp, dailyFees)
       console.log("Retrieved", "revenue", id, fetchCurrentDayTimestamp, dailyRevenue)
-
-      await storeFees(new Fee(FeeType.dailyFees, id, fetchCurrentDayTimestamp, dailyFees))
-      await storeFees(new Fee(FeeType.dailyRevenue, id, fetchCurrentDayTimestamp, dailyRevenue))
+      // TODO: make this more comprehensive
+      const adapterType = adapter.adapterType ? "protocol" : "chain"
+      await storeFees(new Fee(FeeType.dailyFees, id, adapterType, fetchCurrentDayTimestamp, dailyFees))
+      await storeFees(new Fee(FeeType.dailyRevenue, id, adapterType, fetchCurrentDayTimestamp, dailyRevenue))
     }
     catch (error) {
       const err = error as Error

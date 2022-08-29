@@ -1,4 +1,4 @@
-import { BreakdownAdapter, DexFeeBreakdownAdapter } from "../utils/adapters.type";
+import { BreakdownAdapter, FeeAdapter } from "../utils/adapters.type";
 import { ARBITRUM, ETHEREUM, OPTIMISM, POLYGON } from "../helpers/chains";
 import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { getDexChainBreakdownFees, getUniswapV3Fees } from "../helpers/getUniSubgraphFees";
@@ -27,7 +27,7 @@ const breakdownAdapter: BreakdownAdapter = getDexChainBreakdownFees({
   volumeAdapter
 });
 
-const adapter: DexFeeBreakdownAdapter = {
+const adapter: FeeAdapter = {
   breakdown: {
     ...breakdownAdapter,
     v3: {
