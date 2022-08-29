@@ -2,9 +2,7 @@ import feeAdaptors from "../adaptors";
 import { FeeAdapter } from "./adapters.type";
 import data from "./protocols/data";
 import chains from "./protocols/chains";
-import { Protocol } from "./protocols/types";
 import { Chain } from "./constants";
-import axios from 'axios'
 
 export interface IAdapterInfo {
   id: string
