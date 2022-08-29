@@ -1,6 +1,6 @@
 export default {
     "sushiswap": require("../../adaptors/sushiswap"),
-    "1inch": require("../../adaptors/1inch"),
+    "mooniswap": require("../../adaptors/mooniswap"),
     "quickswap": require("../../adaptors/quickswap"),
     "uniswap": require("../../adaptors/uniswap"),
     "spookyswap": require("../../adaptors/spookyswap"),

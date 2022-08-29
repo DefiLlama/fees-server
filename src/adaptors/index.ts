@@ -1,5 +1,5 @@
 import sushiswap from "./sushiswap";
-import oneInch from "./1inch";
+import mooniswap from "./mooniswap";
 import quickswap from "./quickswap";
 import uniswap from "./uniswap";
 import spookyswap from "./spookyswap";
@@ -11,7 +11,7 @@ import bsc from "./bsc"
 
 export default { 
     sushiswap,
-    "1inch": oneInch,
+    mooniswap,
     quickswap,
     uniswap,
     spookyswap,
