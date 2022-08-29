@@ -17,7 +17,9 @@ export interface RevenueHistoryItem {
   timestamp: number;
 }
 
-export interface IHandlerBodyResponse extends Protocol {
+export interface IHandlerBodyResponse {
+    name: string
+    adapterKey: string
     feesHistory: FeeHistoryItem[] | null
     revenueHistory: RevenueHistoryItem[] | null
     total1dFees: number | null
