@@ -30,7 +30,7 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
   if (!protocolName) throw new Error("Missing protocol name!")
 
   const feeData = protocolAdapterData.find(
-      (prot) => prot.name === protocolName
+      (prot) => prot.adapterKey === protocolName
   );
   if (!feeData) throw new Error("Fee data not found!")
   let feeDataResponse = {}
