@@ -27,9 +27,9 @@ export const handler = async (event: IHandlerEvent) => {
   const fetchCurrentDayTimestamp = getTimestampAtStartOfDayUTC(currentTimestamp);
 
   // Get closest block to clean day. Only for EVM compatible ones.
-  const allChains = getAllChainsFromAdapters()
+  const allChains = getAllChainsFromAdapters().filter(chain => chain.toString() !== "celo") // TODO: Figure out why celo hates me
   const chainBlocks = await getChainBlocks(fetchCurrentDayTimestamp, allChains);
-
+  
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
 
@@ -117,7 +117,7 @@ export const handler = async (event: IHandlerEvent) => {
       console.log("Retrieved", "fees", id, fetchCurrentDayTimestamp, dailyFees)
       console.log("Retrieved", "revenue", id, fetchCurrentDayTimestamp, dailyRevenue)
       // TODO: make this more comprehensive
-      const adapterType = adapter.adapterType ? "protocol" : "chain"
+      const adapterType = !adapter.adapterType ? "protocol" : "chain"
       await storeFees(new Fee(FeeType.dailyFees, id, adapterType, fetchCurrentDayTimestamp, dailyFees))
       await storeFees(new Fee(FeeType.dailyRevenue, id, adapterType, fetchCurrentDayTimestamp, dailyRevenue))
     }
