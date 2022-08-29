@@ -58,7 +58,7 @@ export const handler = async (): Promise<IResponse> => {
   })).then(result => result.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value))
 
   const feeDataResponse = {
-    fees: feeItems.sort((item1, item2) => item1.total1dFees - item2.total1dFees)
+    fees: feeItems.sort((item1, item2) => item2.total1dFees - item1.total1dFees)
   }
   return successResponse(feeDataResponse as IHandlerBodyResponse, 10 * 60); // 10 mins cache
 };

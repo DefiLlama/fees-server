@@ -50,11 +50,11 @@ export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IRespon
           feesHistory: fee.map<FeeHistoryItem>(f => ({
               dailyFees: f.data,
               timestamp: f.sk
-          })),
+          })).sort((item1, item2) => item1.timestamp - item2.timestamp),
           revenueHistory: rev.map<RevenueHistoryItem>(f => ({
               dailyRevenue: f.data,
               timestamp: f.sk
-          })),
+          })).sort((item1, item2) => item1.timestamp - item2.timestamp),
           total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
           total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
       }
