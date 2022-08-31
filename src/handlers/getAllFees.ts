@@ -36,7 +36,7 @@ export const handler = async (): Promise<IResponse> => {
     }
 
     // TODO: Create option to get a timestamp
-    const latestTimestamp = fee.map(v => getTimestampAtStartOfDayUTC(v.timestamp)).sort((n1, n2) => n1 - n2)[0]
+    const latestTimestamp = fee.map(v => getTimestampAtStartOfDayUTC(v.timestamp)).sort((n1, n2) => n2 - n1)[0]
 
     const todaysFees = fee.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
     const todaysRevenue = rev.find(v => getTimestampAtStartOfDayUTC(v.timestamp) === latestTimestamp)?.data
