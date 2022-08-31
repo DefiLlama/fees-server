@@ -4,10 +4,11 @@ import { Fee } from "./data/fees";
 import { IRecordFeeData } from "../handlers/storeFees";
 
 const summAllFees = (breakdownFees: IRecordFeeData) =>
-Object.values(breakdownFees).reduce((acc, fee) =>
-    // @ts-ignore
-    acc + (Object.values(fee).pop() ? Object.values(fee).pop() : 0)
+    Object.values(breakdownFees).reduce((acc, fee) =>
+        acc + Object.values(fee)
+            .reduce<number>((vacc, current) => typeof current === 'number' ? vacc + current : vacc, 0)
     , 0)
+
 
 // const calcNdChange = (fees: Fee[], nDaysChange: number) => {
 //     let totalFee = 0
