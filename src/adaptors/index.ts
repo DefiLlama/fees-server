@@ -12,7 +12,6 @@ import binance from "./binance"
 export default { 
     sushiswap,
     mooniswap,
-    quickswap,
     uniswap,
     spookyswap,
     traderjoe,
