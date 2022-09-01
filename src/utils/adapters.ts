@@ -71,6 +71,7 @@ export const protocolAdapterData: Adaptor[] = Object.entries(allFeeAdapters).map
             return {
                 id: foundInChains.chainId ? foundInChains.chainId.toString() : "",
                 name: foundInChains.name,
+                category: "Chain",
                 symbol: foundInChains.tokenSymbol,
                 gecko_id: foundInChains.gecko_id,
                 cmcId: foundInChains.cmcId,
