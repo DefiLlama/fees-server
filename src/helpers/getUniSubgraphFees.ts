@@ -1,4 +1,4 @@
-import { ChainBlocks, DexAdapter, FetchResult as VolumeFetchResult, VolumeAdapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/volumes/dexVolume.type";
+import { ChainBlocks, VolumeAdapter, FetchResult as VolumeFetchResult, Adapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/volumes/dexVolume.type";
 import { Chain } from "@defillama/sdk/build/general";
 
 import BigNumber from "bignumber.js";
@@ -42,7 +42,7 @@ interface IGetRawChainFeeParams {
 }
 
 interface IGetChainFeeParams {
-  volumeAdapter: DexAdapter,
+  volumeAdapter: VolumeAdapter,
   totalFees?: number,
   protocolFees?: number,
 }
@@ -83,7 +83,7 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
     const volumeBreakdownAdapter: VolumeBreakdownAdapter = volumeAdapter.breakdown
 
     for (const [version, adapterObj] of Object.entries(volumeBreakdownAdapter)) {
-      const volAdapter: VolumeAdapter = adapterObj
+      const volAdapter: Adapter = adapterObj
       
       const baseAdapters = Object.keys(volAdapter).map(chain => {
         const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
