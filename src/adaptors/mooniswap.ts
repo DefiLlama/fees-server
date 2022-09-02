@@ -1,6 +1,6 @@
 import { FeeAdapter } from "../utils/adapters.type";
 import { getDexChainFees } from "../helpers/getUniSubgraphFees";
-import volumeAdapter from "@defillama/adapters/dexVolumes/mooniswap";
+import volumeAdapter from "@defillama/adapters/volumes/adapters/mooniswap";
 
 const TOTAL_FEES = 0.003;
 const baseAdapter = getDexChainFees({

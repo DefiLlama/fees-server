@@ -1,4 +1,4 @@
-import { ChainBlocks, DexAdapter, FetchResult as VolumeFetchResult, VolumeAdapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
+import { ChainBlocks, VolumeAdapter, FetchResult as VolumeFetchResult, Adapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/volumes/dexVolume.type";
 import { Chain } from "@defillama/sdk/build/general";
 
 import BigNumber from "bignumber.js";
@@ -10,7 +10,7 @@ import {
   DEFAULT_TOTAL_VOLUME_FIELD,
   DEFAULT_DAILY_VOLUME_FACTORY,
   DEFAULT_DAILY_VOLUME_FIELD,
-} from "@defillama/adapters/dexVolumes/helper/getUniSubgraphVolume";
+} from "@defillama/adapters/volumes/helper/getUniSubgraphVolume";
 import { BaseAdapter, BreakdownAdapter } from "../utils/adapters.type";
 import { IGraphUrls } from "./graphs.type";
 
@@ -42,7 +42,7 @@ interface IGetRawChainFeeParams {
 }
 
 interface IGetChainFeeParams {
-  volumeAdapter: DexAdapter,
+  volumeAdapter: VolumeAdapter,
   totalFees?: number,
   protocolFees?: number,
 }
@@ -83,7 +83,7 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
     const volumeBreakdownAdapter: VolumeBreakdownAdapter = volumeAdapter.breakdown
 
     for (const [version, adapterObj] of Object.entries(volumeBreakdownAdapter)) {
-      const volAdapter: VolumeAdapter = adapterObj
+      const volAdapter: Adapter = adapterObj
       
       const baseAdapters = Object.keys(volAdapter).map(chain => {
         const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
