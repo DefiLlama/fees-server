@@ -1,4 +1,4 @@
-import { ChainBlocks, DexAdapter, FetchResult as VolumeFetchResult, VolumeAdapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/dexVolumes/dexVolume.type";
+import { ChainBlocks, DexAdapter, FetchResult as VolumeFetchResult, VolumeAdapter, BreakdownAdapter as VolumeBreakdownAdapter } from "@defillama/adapters/volumes/dexVolume.type";
 import { Chain } from "@defillama/sdk/build/general";
 
 import BigNumber from "bignumber.js";
@@ -10,7 +10,7 @@ import {
   DEFAULT_TOTAL_VOLUME_FIELD,
   DEFAULT_DAILY_VOLUME_FACTORY,
   DEFAULT_DAILY_VOLUME_FIELD,
-} from "@defillama/adapters/dexVolumes/helper/getUniSubgraphVolume";
+} from "@defillama/adapters/volumes/helper/getUniSubgraphVolume";
 import { BaseAdapter, BreakdownAdapter } from "../utils/adapters.type";
 import { IGraphUrls } from "./graphs.type";
 
