@@ -1,6 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
 import { AVAX, OPTIMISM, FANTOM, HARMONY, ARBITRUM, ETHEREUM, POLYGON } from "../helpers/chains";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
@@ -59,12 +58,6 @@ const v1Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: numbe
         lifetimeFlashloanProtocolFee
         lifetimeOriginationFee
         lifetimeDepositorsInterestEarned
-      }
-      nextDay: paramsHistory(
-        where: { timestamp_gte: ${timestamp}, timestamp_lte: ${timestamp + ONE_DAY} },
-        first: 1
-      ) {
-        id
       }
     }
   }`;
@@ -143,36 +136,30 @@ const v1Graphs = (graphUrls: IGraphUrls) => {
 };
 
 
-const v2Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: number) => {
+const v2Reserves = async (graphUrls: IGraphUrls, poolId: string, chain: string, timestamp: number) => {
   const graphQuery = gql
   `{
-    reserves(where: { pool: "${poolIDs.V1}" }) {
-      id
-      paramsHistory(
-        where: { timestamp_lte: ${timestamp}, timestamp_gte: ${timestamp - ONE_DAY} },
-        orderBy: "timestamp",
-        orderDirection: "desc",
-        first: 1
-      ) {
+    reserves(where: { pool: "${poolId}" }) {
         id
-        priceInUsd
-        reserve {
-          decimals
-          symbol
+        paramsHistory(
+          where: { timestamp_lte: ${timestamp}, timestamp_gte: ${timestamp - ONE_DAY} },
+          orderBy: "timestamp",
+          orderDirection: "desc",
+          first: 1
+        ) {
+          id
+          priceInEth
+          priceInUsd
+          reserve {
+            decimals
+            symbol
+          }
+          lifetimeFlashLoanPremium
+          lifetimeReserveFactorAccrued
+          lifetimeDepositorsInterestEarned
         }
-        lifetimeFlashloanDepositorsFee
-        lifetimeFlashloanProtocolFee
-        lifetimeOriginationFee
-        lifetimeDepositorsInterestEarned
       }
-      nextDay: paramsHistory(
-        where: { timestamp_gte: ${timestamp}, timestamp_lte: ${timestamp + ONE_DAY} },
-        first: 1
-      ) {
-        id
-      }
-    }
-  }`;
+    }`;
 
   const graphRes = await request(graphUrls[chain], graphQuery);
   const reserves = graphRes.reserves.map((r: any) => r.paramsHistory[0]).filter((r: any) => r)
@@ -185,10 +172,17 @@ const v2Graphs = (graphUrls: IGraphUrls) => {
       const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
       const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
 
-      const todaysReserves: V2Reserve[] = await v2Reserves(graphUrls, chain, todaysTimestamp);
-      const yesterdaysReserves: V2Reserve[] = await v2Reserves(graphUrls, chain, yesterdaysTimestamp);
+      let poolID = poolIDs.V2
+      if (chain == "avax") {
+        poolID = poolIDs.V2_AVALANCHE
+      } else if (chain == "polygon") {
+        poolID = poolIDs.V2_POLYGON
+      }
 
-      const dailyFee = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+      const todaysReserves: V2Reserve[] = await v2Reserves(graphUrls, poolID, chain, todaysTimestamp);
+      const yesterdaysReserves: V2Reserve[] = await v2Reserves(graphUrls, poolID, chain, yesterdaysTimestamp);
+
+      let dailyFee = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
         const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
 
         if (!yesterdaysReserve) {
@@ -212,7 +206,7 @@ const v2Graphs = (graphUrls: IGraphUrls) => {
           + reserveFactorUSD;
       }, 0);
 
-      const dailyRev = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+      let dailyRev = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
         const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
 
         if (!yesterdaysReserve) {
@@ -224,10 +218,164 @@ const v2Graphs = (graphUrls: IGraphUrls) => {
         const reserveFactor = parseFloat(reserve.lifetimeReserveFactorAccrued) - (parseFloat(yesterdaysReserve.lifetimeReserveFactorAccrued) || 0);
         const reserveFactorUSD = reserveFactor * priceInUsd / (10 ** reserve.reserve.decimals);
 
-        return acc
-          + reserveFactorUSD;
+        return acc + reserveFactorUSD;
       }, 0);
+
+      if (chain == "ethereum") {
+        const ammPoolID = poolIDs.V2_AMM
+
+        const ammTodaysReserves: V2Reserve[] = await v2Reserves(graphUrls, ammPoolID, chain, todaysTimestamp);
+        const ammYesterdaysReserves: V2Reserve[] = await v2Reserves(graphUrls, ammPoolID, chain, yesterdaysTimestamp);
+        
+        dailyFee += ammTodaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+          const yesterdaysReserve = ammYesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+  
+          if (!yesterdaysReserve) {
+            return acc;
+          }
+  
+          const priceInUsd = parseFloat(reserve.priceInUsd)
+  
+          const depositorInterest = parseFloat(reserve.lifetimeDepositorsInterestEarned) - (parseFloat(yesterdaysReserve?.lifetimeDepositorsInterestEarned) || 0);
+          const depositorInterestUSD = depositorInterest * priceInUsd / (10 ** reserve.reserve.decimals);
+  
+          const flashloanPremium = parseFloat(reserve.lifetimeFlashLoanPremium) - (parseFloat(yesterdaysReserve?.lifetimeFlashLoanPremium) || 0);
+          const flashloanPremiumUSD = flashloanPremium * priceInUsd / (10 ** reserve.reserve.decimals);
+  
+          const reserveFactor = parseFloat(reserve.lifetimeReserveFactorAccrued) - (parseFloat(yesterdaysReserve.lifetimeReserveFactorAccrued) || 0);
+          const reserveFactorUSD = reserveFactor * priceInUsd / (10 ** reserve.reserve.decimals);
+  
+          return acc
+            + depositorInterestUSD
+            + flashloanPremiumUSD
+            + reserveFactorUSD;
+        }, 0);
+
+        dailyRev += ammTodaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+          const yesterdaysReserve = ammYesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+  
+          if (!yesterdaysReserve) {
+            return acc;
+          }
+  
+          const priceInUsd = parseFloat(reserve.priceInUsd)
+  
+          const reserveFactor = parseFloat(reserve.lifetimeReserveFactorAccrued) - (parseFloat(yesterdaysReserve.lifetimeReserveFactorAccrued) || 0);
+          const reserveFactorUSD = reserveFactor * priceInUsd / (10 ** reserve.reserve.decimals);
+  
+          return acc + reserveFactorUSD;
+        }, 0);
+      }
       
+      return {
+        timestamp,
+        totalFees: "0",
+        dailyFees: dailyFee.toString(),
+        totalRevenue: "0",
+        dailyRevenue: dailyRev.toString(),
+      };
+    };
+  };
+};
+
+
+
+const v3Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: number) => {
+  const graphQuery = gql
+  `{
+    reserves(where: { pool: "${poolIDs.V3}" }) {
+        id
+        paramsHistory(
+          where: { timestamp_lte: ${timestamp}, timestamp_gte: ${timestamp - ONE_DAY} },
+          orderBy: "timestamp",
+          orderDirection: "desc",
+          first: 1
+        ) {
+          id
+          priceInEth
+          priceInUsd
+          reserve {
+            decimals
+            symbol
+          }
+          lifetimeFlashLoanLPPremium
+          lifetimeFlashLoanProtocolPremium
+          lifetimePortalLPFee
+          lifetimePortalProtocolFee
+          lifetimeReserveFactorAccrued
+          lifetimeDepositorsInterestEarned: lifetimeSuppliersInterestEarned
+          accruedToTreasury
+        }
+      }
+    }`;
+
+  const graphRes = await request(graphUrls[chain], graphQuery);
+  const reserves = graphRes.reserves.map((r: any) => r.paramsHistory[0]).filter((r: any) => r)
+  return reserves
+}
+
+const v3Graphs = (graphUrls: IGraphUrls) => {
+  return (chain: Chain) => {
+    return async (timestamp: number) => {
+      const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
+      const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
+
+      const todaysReserves: V3Reserve[] = await v3Reserves(graphUrls, chain, todaysTimestamp);
+      const yesterdaysReserves: V3Reserve[] = await v3Reserves(graphUrls, chain, yesterdaysTimestamp);
+
+      const feeBreakdown: any = todaysReserves.reduce((acc, reserve: V3Reserve) => {
+        const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+
+        if (!yesterdaysReserve) {
+          return acc;
+        }
+
+        const priceInUsd = parseFloat(reserve.priceInUsd) / (10 ** 8)
+
+        const depositorInterest = parseFloat(reserve.lifetimeDepositorsInterestEarned) - parseFloat(yesterdaysReserve?.lifetimeDepositorsInterestEarned);
+        const depositorInterestUSD = depositorInterest * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const flashloanLPPremium = parseFloat(reserve.lifetimeFlashLoanLPPremium) - parseFloat(yesterdaysReserve.lifetimeFlashLoanLPPremium);
+        const flashloanLPPremiumUSD = flashloanLPPremium * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const flashloanProtocolPremium = parseFloat(reserve.lifetimeFlashLoanProtocolPremium) - parseFloat(yesterdaysReserve.lifetimeFlashLoanProtocolPremium);
+        const flashloanProtocolPremiumUSD = flashloanProtocolPremium * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const portalLPFee = parseFloat(reserve.lifetimePortalLPFee) - parseFloat(yesterdaysReserve?.lifetimePortalLPFee);
+        const portalLPFeeUSD = portalLPFee * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const portalProtocolFee = parseFloat(reserve.lifetimePortalProtocolFee) - parseFloat(yesterdaysReserve?.lifetimePortalProtocolFee);
+        const portalProtocolFeeUSD = portalProtocolFee * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const treasuryIncome = parseFloat(reserve.lifetimeReserveFactorAccrued) - parseFloat(yesterdaysReserve?.lifetimeReserveFactorAccrued);
+
+        const outstandingTreasuryIncome = parseFloat(reserve.accruedToTreasury) - parseFloat(yesterdaysReserve?.accruedToTreasury);
+
+        const treasuryIncomeUSD = treasuryIncome * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const outstandingTreasuryIncomeUSD = outstandingTreasuryIncome * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        acc.outstandingTreasuryIncomeUSD += outstandingTreasuryIncomeUSD;
+        acc.treasuryIncomeUSD += treasuryIncomeUSD;
+        acc.depositorInterestUSD += depositorInterestUSD;
+        acc.flashloanLPPremiumUSD += flashloanLPPremiumUSD;
+        acc.flashloanProtocolPremiumUSD += flashloanProtocolPremiumUSD;
+        acc.portalLPFeeUSD += portalLPFeeUSD;
+        acc.portalProtocolFeeUSD += portalProtocolFeeUSD;
+        return acc;
+      }, {
+        depositorInterestUSD: 0,
+        flashloanLPPremiumUSD: 0,
+        flashloanProtocolPremiumUSD: 0,
+        portalLPFeeUSD: 0,
+        portalProtocolFeeUSD: 0,
+        treasuryIncomeUSD: 0,
+        outstandingTreasuryIncomeUSD: 0
+      });
+
+      const dailyFee = feeBreakdown.depositorInterestUSD + feeBreakdown.flashloanLPPremiumUSD + feeBreakdown.portalLPFeeUSD
+      const dailyRev = feeBreakdown.treasuryIncomeUSD + feeBreakdown.outstandingTreasuryIncomeUSD
+
       return {
         timestamp,
         totalFees: "0",
@@ -261,6 +409,36 @@ const adapter: FeeAdapter = {
         start: 1606971600
       },
     },
+    v3: {
+      [ETHEREUM]: {
+        fetch: v3Graphs(v3Endpoints)(ETHEREUM),
+        start: 1647230400
+      },
+      [AVAX]: {
+        fetch: v3Graphs(v3Endpoints)(AVAX),
+        start: 1647230400
+      },
+      [POLYGON]: {
+        fetch: v3Graphs(v3Endpoints)(POLYGON),
+        start: 1647230400
+      },
+      [ARBITRUM]: {
+        fetch: v3Graphs(v3Endpoints)(ARBITRUM),
+        start: 1647230400
+      },
+      [OPTIMISM]: {
+        fetch: v3Graphs(v3Endpoints)(OPTIMISM),
+        start: 1647230400
+      },
+      [FANTOM]: {
+        fetch: v3Graphs(v3Endpoints)(FANTOM),
+        start: 1647230400
+      },
+      [HARMONY]: {
+        fetch: v3Graphs(v3Endpoints)(HARMONY),
+        start: 1647230400
+      },
+    }
   }
 }
 
