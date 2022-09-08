@@ -1,5 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
-import { AVALANCHE, OPTIMISM, FANTOM, HARMONY, ARBITRUM, ETHEREUM, POLYGON } from "../helpers/chains";
+import { AVAX, OPTIMISM, FANTOM, HARMONY, ARBITRUM, ETHEREUM, POLYGON } from "../helpers/chains";
 import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
@@ -9,23 +9,71 @@ import { ChainBlocks } from "@defillama/adapters/volumes/dexVolume.type";
 import BigNumber from "bignumber.js";
 import { getTimestampAtStartOfPreviousDayUTC, getTimestampAtStartOfDayUTC } from "../utils/date";
 
+const poolIDs = {
+  V1: '0x24a42fd28c976a61df5d00d0599c34c4f90748c8',
+  V2: '0xb53c1a33016b2dc2ff3653530bff1848a515c8c5',
+  V2_AMM: '0xacc030ef66f9dfeae9cbb0cd1b25654b82cfa8d5',
+  V2_POLYGON: '0xd05e3e715d945b59290df0ae8ef85c1bdb684744',
+  V2_AVALANCHE: '0xb6a86025f0fe1862b372cb0ca18ce3ede02a318f',
+  V3: '0xa97684ead0e402dc232d5a977953df7ecbab3cdb'
+}
+
+const ONE_DAY = 24 * 60 * 60;
+
 const v1Endpoints = {
   [ETHEREUM]: "aave/protocol-multy-raw",
 }
 
 const v2Endpoints = {
   [ETHEREUM]: "https://api.thegraph.com/subgraphs/name/aave/protocol-v2",
-  [AVALANCHE]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2-avalanche',
+  [AVAX]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v2-avalanche',
   [POLYGON]: "https://api.thegraph.com/subgraphs/name/aave/aave-v2-matic"
 };
 
 const v3Endpoints = {
   [POLYGON]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-polygon',
-  [AVALANCHE]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-avalanche',
+  [AVAX]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-avalanche',
   [ARBITRUM]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-arbitrum',
   [OPTIMISM]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-optimism',
   [FANTOM]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-fantom',
   [HARMONY]: 'https://api.thegraph.com/subgraphs/name/aave/protocol-v3-harmony'
+}
+
+
+const v1Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: number) => {
+  const graphQuery = gql
+  `{
+    reserves(where: { pool: "${poolIDs.V1}" }) {
+      id
+      paramsHistory(
+        where: { timestamp_lte: ${timestamp}, timestamp_gte: ${timestamp - ONE_DAY} },
+        orderBy: "timestamp",
+        orderDirection: "desc",
+        first: 1
+      ) {
+        id
+        priceInUsd
+        reserve {
+          decimals
+          symbol
+        }
+        lifetimeFlashloanDepositorsFee
+        lifetimeFlashloanProtocolFee
+        lifetimeOriginationFee
+        lifetimeDepositorsInterestEarned
+      }
+      nextDay: paramsHistory(
+        where: { timestamp_gte: ${timestamp}, timestamp_lte: ${timestamp + ONE_DAY} },
+        first: 1
+      ) {
+        id
+      }
+    }
+  }`;
+
+  const graphRes = await request(graphUrls[chain], graphQuery);
+  const reserves = graphRes.reserves.map((r: any) => r.paramsHistory[0]).filter((r: any) => r)
+  return reserves
 }
 
 const v1Graphs = (graphUrls: IGraphUrls) => {
@@ -34,83 +82,60 @@ const v1Graphs = (graphUrls: IGraphUrls) => {
       const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
       const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
 
-      const todaysBlock = (await getBlock(todaysTimestamp, chain, chainBlocks));
-      const yesterdaysBlock = (await getBlock(yesterdaysTimestamp, chain, {}));
+      const todaysReserves: V1Reserve[] = await v1Reserves(graphUrls, chain, todaysTimestamp);
+      const yesterdaysReserves: V1Reserve[] = await v1Reserves(graphUrls, chain, yesterdaysTimestamp);
 
-      const graphQuery = gql
-      `{
-        today: balancer(id: "1", block: { number: ${todaysBlock} }) {
-          totalSwapFee
+      const dailyFee = todaysReserves.reduce((acc: number, reserve: V1Reserve) => {
+        const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+
+        if (!yesterdaysReserve) {
+          return acc;
         }
-        yesterday: balancer(id: "1", block: { number: ${yesterdaysBlock} }) {
-          totalSwapFee
-        }
-      }`;
 
-      const graphRes = await request(graphUrls[chain], graphQuery);
-      const dailyFee = (new BigNumber(graphRes["today"]["totalSwapFee"]).minus(new BigNumber(graphRes["yesterday"]["totalSwapFee"])))
+        const priceInUsd = parseFloat(reserve.priceInUsd);
 
-      console.log(graphRes["today"]["totalSwapFee"])
-      return {
-        timestamp,
-        totalFees: graphRes["today"]["totalSwapFee"],
-        dailyFees: dailyFee.toString(),
-        totalRevenue: "0", // balancer v1 had no rev
-        dailyRevenue: "0", // balancer v1 had no rev
-      };
-    };
-  };
-};
+        const depositorInterest = parseFloat(reserve.lifetimeDepositorsInterestEarned) - parseFloat(yesterdaysReserve.lifetimeDepositorsInterestEarned);
+        const depositorInterestUSD = depositorInterest * priceInUsd / (10 ** reserve.reserve.decimals);
 
-const v2Graphs = (graphUrls: IGraphUrls) => {
-  return (chain: Chain) => {
-    return async (timestamp: number) => {
-      const startTimestamp = getTimestampAtStartOfDayUTC(timestamp)
-      const dayId = Math.floor(startTimestamp / 86400)
+        const originationFees = parseFloat(reserve.lifetimeOriginationFee) - parseFloat(yesterdaysReserve.lifetimeOriginationFee);
+        const originationFeesUSD = originationFees * priceInUsd / (10 ** reserve.reserve.decimals);
 
-      const graphQuery = gql
-      `query fees($dayId: String!, $yesterdayId: String!) {
-        today: balancerSnapshot(id: $dayId) {
-          totalSwapFee
-        }
-        yesterday: balancerSnapshot(id: $yesterdayId) {
-          totalSwapFee
-        }
-        tenPcFeeChange: balancerSnapshot(id: "2-18972") {
-          totalSwapFee
-          timestamp
-        }
-        fiftyPcFeeChange: balancerSnapshot(id: "2-19039") {
-          totalSwapFee
-          timestamp
-        }
-      }`;
+        const flashloanDepositorsFees = parseFloat(reserve.lifetimeFlashloanDepositorsFee) - parseFloat(yesterdaysReserve.lifetimeFlashloanDepositorsFee);
+        const flashloanDepositorsFeesUSD = flashloanDepositorsFees * priceInUsd / (10 ** reserve.reserve.decimals);
 
-      const graphRes = await request(graphUrls[chain], graphQuery, {
-        dayId: `2-${dayId}`,
-        yesterdayId: `2-${dayId - 1}`
-      });
-      const currentTotalSwapFees = new BigNumber(graphRes["today"]["totalSwapFee"])
+        const flashloanProtocolFees = parseFloat(reserve.lifetimeFlashloanProtocolFee) - parseFloat(yesterdaysReserve.lifetimeFlashloanProtocolFee);
+        const flashloanProtocolFeesUSD = flashloanProtocolFees * priceInUsd / (10 ** reserve.reserve.decimals);
 
-      const dailyFee = currentTotalSwapFees.minus(new BigNumber(graphRes["yesterday"]["totalSwapFee"]))
-      const tenPcFeeTimestamp = graphRes["tenPcFeeChange"]["timestamp"]
-      const fiftyPcFeeTimestamp = graphRes["fiftyPcFeeChange"]["timestamp"]
-      const tenPcTotalSwapFees = new BigNumber(graphRes["tenPcFeeChange"]["totalSwapFee"])
-      const fiftyPcTotalSwapFees = new BigNumber(graphRes["fiftyPcFeeChange"]["totalSwapFee"])
+        return acc
+          + depositorInterestUSD
+          + originationFeesUSD
+          + flashloanProtocolFeesUSD
+          + flashloanDepositorsFeesUSD;
+      }, 0);
 
-      // 10% gov vote enabled: https://vote.balancer.fi/#/proposal/0xf6238d70f45f4dacfc39dd6c2d15d2505339b487bbfe014457eba1d7e4d603e3
-      // 50% gov vote change: https://vote.balancer.fi/#/proposal/0x03e64d35e21467841bab4847437d4064a8e4f42192ce6598d2d66770e5c51ace
-      const dailyRevenue = startTimestamp < tenPcFeeTimestamp ? "0" : (
-        startTimestamp < fiftyPcFeeTimestamp ? dailyFee.multipliedBy(0.1) : dailyFee.multipliedBy(0.5))
-      const totalRevenue = startTimestamp < tenPcFeeTimestamp ? "0" : (
-        startTimestamp < fiftyPcFeeTimestamp ? currentTotalSwapFees.minus(tenPcTotalSwapFees).multipliedBy(0.1) : currentTotalSwapFees.minus(fiftyPcTotalSwapFees).multipliedBy(0.5))
+      const totalFees = todaysReserves.reduce((acc: number, reserve: V1Reserve) => {
+        const priceInUsd = parseFloat(reserve.priceInUsd);
+
+        const depositorInterestUSD = parseFloat(reserve.lifetimeDepositorsInterestEarned) * priceInUsd / (10 ** reserve.reserve.decimals);
+        const originationFeesUSD = parseFloat(reserve.lifetimeOriginationFee) * priceInUsd / (10 ** reserve.reserve.decimals);
+        const flashloanDepositorsFeesUSD = parseFloat(reserve.lifetimeFlashloanDepositorsFee) * priceInUsd / (10 ** reserve.reserve.decimals);
+        const flashloanProtocolFeesUSD = parseFloat(reserve.lifetimeFlashloanProtocolFee) * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        return acc
+          + depositorInterestUSD
+          + originationFeesUSD
+          + flashloanProtocolFeesUSD
+          + flashloanDepositorsFeesUSD;
+      }, 0);
+      
+      console.log(todaysReserves)
       
       return {
         timestamp,
-        totalFees: graphRes["today"]["totalSwapFee"],
+        totalFees: totalFees.toString(),
         dailyFees: dailyFee.toString(),
-        totalRevenue: totalRevenue.toString(), // balancer v2 subgraph does not flash loan fees yet
-        dailyRevenue: dailyRevenue.toString(), // balancer v2 subgraph does not flash loan fees yet
+        totalRevenue: "0",
+        dailyRevenue: "0",
       };
     };
   };
@@ -129,35 +154,6 @@ const adapter: FeeAdapter = {
         }),
       },
     },
-    v2: {
-      [ETHEREUM]: {
-        fetch: v2Graphs(v2Endpoints)(ETHEREUM),
-        start: getStartTimestamp({
-          endpoints: v2Endpoints,
-          chain: ETHEREUM,
-          dailyDataField: "balancerSnapshots",
-          dateField: "timestamp"
-        }),
-      },
-      [POLYGON]: {
-        fetch: v2Graphs(v2Endpoints)(POLYGON),
-        start: getStartTimestamp({
-          endpoints: v2Endpoints,
-          chain: POLYGON,
-          dailyDataField: "balancerSnapshots",
-          dateField: "timestamp"
-        }),
-      },
-      [ARBITRUM]: {
-        fetch: v2Graphs(v2Endpoints)(ARBITRUM),
-        start: getStartTimestamp({
-          endpoints: v2Endpoints,
-          chain: ARBITRUM,
-          dailyDataField: "balancerSnapshots",
-          dateField: "timestamp"
-        }),
-      }
-    }
   }
 }
 
