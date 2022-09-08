@@ -5,7 +5,7 @@ import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
 import { getTimestampAtStartOfPreviousDayUTC, getTimestampAtStartOfDayUTC } from "../utils/date";
-import { V1Reserve } from "./helpers/aave"
+import { V1Reserve, V2Reserve, V3Reserve } from "./helpers/aave"
 
 const poolIDs = {
   V1: '0x24a42fd28c976a61df5d00d0599c34c4f90748c8',
@@ -142,12 +142,123 @@ const v1Graphs = (graphUrls: IGraphUrls) => {
   };
 };
 
+
+const v2Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: number) => {
+  const graphQuery = gql
+  `{
+    reserves(where: { pool: "${poolIDs.V1}" }) {
+      id
+      paramsHistory(
+        where: { timestamp_lte: ${timestamp}, timestamp_gte: ${timestamp - ONE_DAY} },
+        orderBy: "timestamp",
+        orderDirection: "desc",
+        first: 1
+      ) {
+        id
+        priceInUsd
+        reserve {
+          decimals
+          symbol
+        }
+        lifetimeFlashloanDepositorsFee
+        lifetimeFlashloanProtocolFee
+        lifetimeOriginationFee
+        lifetimeDepositorsInterestEarned
+      }
+      nextDay: paramsHistory(
+        where: { timestamp_gte: ${timestamp}, timestamp_lte: ${timestamp + ONE_DAY} },
+        first: 1
+      ) {
+        id
+      }
+    }
+  }`;
+
+  const graphRes = await request(graphUrls[chain], graphQuery);
+  const reserves = graphRes.reserves.map((r: any) => r.paramsHistory[0]).filter((r: any) => r)
+  return reserves
+}
+
+const v2Graphs = (graphUrls: IGraphUrls) => {
+  return (chain: Chain) => {
+    return async (timestamp: number) => {
+      const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
+      const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
+
+      const todaysReserves: V2Reserve[] = await v2Reserves(graphUrls, chain, todaysTimestamp);
+      const yesterdaysReserves: V2Reserve[] = await v2Reserves(graphUrls, chain, yesterdaysTimestamp);
+
+      const dailyFee = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+        const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+
+        if (!yesterdaysReserve) {
+          return acc;
+        }
+
+        const priceInUsd = chain == 'avax' ? parseFloat(reserve.priceInUsd) / (10 ** 8) : parseFloat(reserve.priceInUsd)
+
+        const depositorInterest = parseFloat(reserve.lifetimeDepositorsInterestEarned) - (parseFloat(yesterdaysReserve?.lifetimeDepositorsInterestEarned) || 0);
+        const depositorInterestUSD = depositorInterest * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const flashloanPremium = parseFloat(reserve.lifetimeFlashLoanPremium) - (parseFloat(yesterdaysReserve?.lifetimeFlashLoanPremium) || 0);
+        const flashloanPremiumUSD = flashloanPremium * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const reserveFactor = parseFloat(reserve.lifetimeReserveFactorAccrued) - (parseFloat(yesterdaysReserve.lifetimeReserveFactorAccrued) || 0);
+        const reserveFactorUSD = reserveFactor * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        return acc
+          + depositorInterestUSD
+          + flashloanPremiumUSD
+          + reserveFactorUSD;
+      }, 0);
+
+      const dailyRev = todaysReserves.reduce((acc: number, reserve: V2Reserve) => {
+        const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+
+        if (!yesterdaysReserve) {
+          return acc;
+        }
+
+        const priceInUsd = chain == 'avax' ? parseFloat(reserve.priceInUsd) / (10 ** 8) : parseFloat(reserve.priceInUsd)
+
+        const reserveFactor = parseFloat(reserve.lifetimeReserveFactorAccrued) - (parseFloat(yesterdaysReserve.lifetimeReserveFactorAccrued) || 0);
+        const reserveFactorUSD = reserveFactor * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        return acc
+          + reserveFactorUSD;
+      }, 0);
+      
+      return {
+        timestamp,
+        totalFees: "0",
+        dailyFees: dailyFee.toString(),
+        totalRevenue: "0",
+        dailyRevenue: dailyRev.toString(),
+      };
+    };
+  };
+};
+
 const adapter: FeeAdapter = {
   breakdown: {
     v1: {
       [ETHEREUM]: {
         fetch: v1Graphs(v1Endpoints)(ETHEREUM),
         start: 1578459600
+      },
+    },
+    v2: {
+      [AVAX]: {
+        fetch: v2Graphs(v2Endpoints)(AVAX),
+        start: 1606971600
+      },
+      [ETHEREUM]: {
+        fetch: v2Graphs(v2Endpoints)(ETHEREUM),
+        start: 1606971600
+      },
+      [POLYGON]: {
+        fetch: v2Graphs(v2Endpoints)(POLYGON),
+        start: 1606971600
       },
     },
   }
