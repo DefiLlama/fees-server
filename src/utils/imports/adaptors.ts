@@ -8,4 +8,5 @@ export default {
     "balancer": require("../../adaptors/balancer"),
     "makerdao": require("../../adaptors/makerdao"),
     "binance": require("../../adaptors/binance"), 
+    "aave": require("../../adaptors/aave"), 
 }

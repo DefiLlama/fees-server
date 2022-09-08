@@ -1,5 +1,4 @@
-
-type V1Reserve = {
+export type V1Reserve = {
   lifetimeFlashloanDepositorsFee: string
   lifetimeFlashloanProtocolFee: string
   lifetimeOriginationFee: string
@@ -11,7 +10,7 @@ type V1Reserve = {
   }
 }
 
-type V2Reserve = {
+export type V2Reserve = {
   lifetimeFlashLoanPremium: string
   lifetimeReserveFactorAccrued: string
   lifetimeDepositorsInterestEarned: string
@@ -22,7 +21,7 @@ type V2Reserve = {
   }
 }
 
-type V3Reserve = {
+export type V3Reserve = {
   lifetimeFlashLoanLPPremium : string
   lifetimeFlashLoanProtocolPremium: string
   lifetimePortalLPFee: string

@@ -4,10 +4,8 @@ import { getStartTimestamp } from "../helpers/getStartTimestamp";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
-import { getBlock } from "../helpers/getBlock";
-import { ChainBlocks } from "@defillama/adapters/volumes/dexVolume.type";
-import BigNumber from "bignumber.js";
 import { getTimestampAtStartOfPreviousDayUTC, getTimestampAtStartOfDayUTC } from "../utils/date";
+import { V1Reserve } from "./helpers/aave"
 
 const poolIDs = {
   V1: '0x24a42fd28c976a61df5d00d0599c34c4f90748c8',
@@ -21,7 +19,7 @@ const poolIDs = {
 const ONE_DAY = 24 * 60 * 60;
 
 const v1Endpoints = {
-  [ETHEREUM]: "aave/protocol-multy-raw",
+  [ETHEREUM]: "https://api.thegraph.com/subgraphs/name/aave/protocol-multy-raw",
 }
 
 const v2Endpoints = {
@@ -78,7 +76,7 @@ const v1Reserves = async (graphUrls: IGraphUrls, chain: string, timestamp: numbe
 
 const v1Graphs = (graphUrls: IGraphUrls) => {
   return (chain: Chain) => {
-    return async (timestamp: number, chainBlocks: ChainBlocks) => {
+    return async (timestamp: number) => {
       const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
       const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
 
@@ -113,29 +111,32 @@ const v1Graphs = (graphUrls: IGraphUrls) => {
           + flashloanDepositorsFeesUSD;
       }, 0);
 
-      const totalFees = todaysReserves.reduce((acc: number, reserve: V1Reserve) => {
+      const dailyRev = todaysReserves.reduce((acc: number, reserve: V1Reserve) => {
+        const yesterdaysReserve = yesterdaysReserves.find((r: any) => r.reserve.symbol === reserve.reserve.symbol)
+
+        if (!yesterdaysReserve) {
+          return acc;
+        }
+
         const priceInUsd = parseFloat(reserve.priceInUsd);
 
-        const depositorInterestUSD = parseFloat(reserve.lifetimeDepositorsInterestEarned) * priceInUsd / (10 ** reserve.reserve.decimals);
-        const originationFeesUSD = parseFloat(reserve.lifetimeOriginationFee) * priceInUsd / (10 ** reserve.reserve.decimals);
-        const flashloanDepositorsFeesUSD = parseFloat(reserve.lifetimeFlashloanDepositorsFee) * priceInUsd / (10 ** reserve.reserve.decimals);
-        const flashloanProtocolFeesUSD = parseFloat(reserve.lifetimeFlashloanProtocolFee) * priceInUsd / (10 ** reserve.reserve.decimals);
+        const originationFees = parseFloat(reserve.lifetimeOriginationFee) - parseFloat(yesterdaysReserve.lifetimeOriginationFee);
+        const originationFeesUSD = originationFees * priceInUsd / (10 ** reserve.reserve.decimals);
+
+        const flashloanProtocolFees = parseFloat(reserve.lifetimeFlashloanProtocolFee) - parseFloat(yesterdaysReserve.lifetimeFlashloanProtocolFee);
+        const flashloanProtocolFeesUSD = flashloanProtocolFees * priceInUsd / (10 ** reserve.reserve.decimals);
 
         return acc
-          + depositorInterestUSD
           + originationFeesUSD
           + flashloanProtocolFeesUSD
-          + flashloanDepositorsFeesUSD;
       }, 0);
-      
-      console.log(todaysReserves)
       
       return {
         timestamp,
-        totalFees: totalFees.toString(),
+        totalFees: "0",
         dailyFees: dailyFee.toString(),
         totalRevenue: "0",
-        dailyRevenue: "0",
+        dailyRevenue: dailyRev.toString(),
       };
     };
   };
@@ -146,12 +147,7 @@ const adapter: FeeAdapter = {
     v1: {
       [ETHEREUM]: {
         fetch: v1Graphs(v1Endpoints)(ETHEREUM),
-        start: getStartTimestamp({
-          endpoints: v1Endpoints,
-          chain: ETHEREUM,
-          dailyDataField: "transactions",
-          dateField: "timestamp"
-        }),
+        start: 1578459600
       },
     },
   }
