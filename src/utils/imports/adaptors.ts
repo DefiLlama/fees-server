@@ -10,4 +10,5 @@ export default {
     "binance": require("../../adaptors/binance"), 
     "aave": require("../../adaptors/aave"), 
     "compound": require("../../adaptors/compound"), 
+    "osmosis": require("../../adaptors/osmosis"), 
 }

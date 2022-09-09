@@ -9,6 +9,7 @@ import balancer from "./balancer";
 import makerdao from "./makerdao";
 import binance from "./binance"
 import compound from "./compound"
+import osmosis from "./osmosis"
 
 export default { 
     sushiswap,
@@ -21,5 +22,6 @@ export default {
     makerdao,
     binance,
     aave,
-    compound
+    compound,
+    osmosis
 };
