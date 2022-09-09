@@ -1,6 +1,7 @@
 const sdk = require("@defillama/sdk");
 const retry = require("async-retry");
 const axios = require("axios");
+const { providers } = require("@defillama/sdk/build/general");
 
 async function getBlock(timestamp, chain, chainBlocks, undefinedOk = false) {
   if (
@@ -29,6 +30,9 @@ async function getBlock(timestamp, chain, chainBlocks, undefinedOk = false) {
   }
 }
 
+const canGetBlock = (chain) => Object.keys(providers).includes(chain)
+
 module.exports = {
   getBlock,
+  canGetBlock,
 };
