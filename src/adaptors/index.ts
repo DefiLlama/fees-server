@@ -8,6 +8,7 @@ import pancakeswap from "./pancakeswap";
 import balancer from "./balancer";
 import makerdao from "./makerdao";
 import binance from "./binance"
+import compound from "./compound"
 
 export default { 
     sushiswap,
@@ -19,5 +20,6 @@ export default {
     balancer,
     makerdao,
     binance,
-    aave
+    aave,
+    compound
 };

@@ -9,4 +9,5 @@ export default {
     "makerdao": require("../../adaptors/makerdao"),
     "binance": require("../../adaptors/binance"), 
     "aave": require("../../adaptors/aave"), 
+    "compound": require("../../adaptors/compound"), 
 }
