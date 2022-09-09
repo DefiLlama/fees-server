@@ -1,5 +1,4 @@
 import { getChainBlocks } from "@defillama/sdk/build/computeTVL/blocks";
-
 import { wrapScheduledLambda } from "../utils/wrap";
 import { getTimestampAtStartOfDayUTC } from "../utils/date";
 import { protocolAdapterData, getAllChainsFromAdapters } from "../utils/adapters";
@@ -8,6 +7,7 @@ import { handleAdapterError } from "../utils";
 import allSettled from 'promise.allsettled'
 import { importFeesAdapter } from "../utils/imports/importAdapter";
 import { storeFees, Fee, FeeType } from "../utils/data/fees";
+import { canGetBlock } from "../helpers/getBlock"
 
 interface IHandlerEvent {
   protocolIndexes: number[]
@@ -27,7 +27,7 @@ export const handler = async (event: IHandlerEvent) => {
   const fetchCurrentDayTimestamp = getTimestampAtStartOfDayUTC(currentTimestamp);
 
   // Get closest block to clean day. Only for EVM compatible ones.
-  const allChains = getAllChainsFromAdapters().filter(chain => chain.toString() !== "celo") // TODO: Figure out why celo hates me
+  const allChains = getAllChainsFromAdapters().filter(chain => chain.toString() !== "celo").filter(canGetBlock) // TODO: Figure out why celo hates me
   const chainBlocks = await getChainBlocks(fetchCurrentDayTimestamp, allChains);
   
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
