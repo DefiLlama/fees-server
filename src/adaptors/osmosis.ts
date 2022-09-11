@@ -20,7 +20,6 @@ const fetch = async (timestamp: number) => {
   const dailyFee = historicalFees
     .find(dayItem => (new Date(dayItem.time).getTime() / 1000) === dayTimestamp)?.fees_spent
 
-  console.log(historicalFees)
   return {
     timestamp: dayTimestamp,
     totalFees: `${totalFee}`,
