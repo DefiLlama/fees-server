@@ -101,7 +101,7 @@ const chains: ChainObject[] = [
       "tvl": 6485387194.818199,
       "tokenSymbol": "BNB",
       "cmcId": "1839",
-      "name": "Binance",
+      "name": "BSC",
       "chainId": 56
     },
     {
