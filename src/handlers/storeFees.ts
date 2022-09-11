@@ -27,7 +27,7 @@ export const handler = async (event: IHandlerEvent) => {
   const fetchCurrentDayTimestamp = getTimestampAtStartOfDayUTC(currentTimestamp);
 
   // Get closest block to clean day. Only for EVM compatible ones.
-  const allChains = getAllChainsFromAdapters().filter(canGetBlock)
+  const allChains = getAllChainsFromAdapters().filter(chain => chain.toString() !== "celo").filter(canGetBlock)
   const chainBlocks = await getChainBlocks(fetchCurrentDayTimestamp, allChains);
   
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
