@@ -10,6 +10,7 @@ import makerdao from "./makerdao";
 import bsc from "./bsc"
 import compound from "./compound"
 import osmosis from "./osmosis"
+import gmx from "./gmx"
 
 export default { 
     sushiswap,
@@ -23,5 +24,6 @@ export default {
     bsc,
     aave,
     compound,
-    osmosis
+    osmosis,
+    gmx
 };

@@ -11,4 +11,5 @@ export default {
     "aave": require("../../adaptors/aave"), 
     "compound": require("../../adaptors/compound"), 
     "osmosis": require("../../adaptors/osmosis"), 
+    "gmx": require("../../adaptors/gmx"), 
 }
