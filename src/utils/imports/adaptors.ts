@@ -7,7 +7,7 @@ export default {
     "pancakeswap": require("../../adaptors/pancakeswap"),
     "balancer": require("../../adaptors/balancer"),
     "makerdao": require("../../adaptors/makerdao"),
-    "binance": require("../../adaptors/binance"), 
+    "bsc": require("../../adaptors/bsc"), 
     "aave": require("../../adaptors/aave"), 
     "compound": require("../../adaptors/compound"), 
     "osmosis": require("../../adaptors/osmosis"), 

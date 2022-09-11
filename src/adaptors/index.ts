@@ -7,7 +7,7 @@ import traderjoe from "./traderjoe";
 import pancakeswap from "./pancakeswap";
 import balancer from "./balancer";
 import makerdao from "./makerdao";
-import binance from "./binance"
+import bsc from "./bsc"
 import compound from "./compound"
 import osmosis from "./osmosis"
 
@@ -20,7 +20,7 @@ export default {
     pancakeswap,
     balancer,
     makerdao,
-    binance,
+    bsc,
     aave,
     compound,
     osmosis
