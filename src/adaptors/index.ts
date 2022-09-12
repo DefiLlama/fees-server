@@ -11,6 +11,7 @@ import bsc from "./bsc"
 import compound from "./compound"
 import osmosis from "./osmosis"
 import gmx from "./gmx"
+import synthetix from "./synthetix"
 
 export default { 
     sushiswap,
@@ -25,5 +26,6 @@ export default {
     aave,
     compound,
     osmosis,
-    gmx
+    gmx,
+    synthetix
 };

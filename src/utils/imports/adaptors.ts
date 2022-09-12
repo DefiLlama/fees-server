@@ -12,4 +12,5 @@ export default {
     "compound": require("../../adaptors/compound"), 
     "osmosis": require("../../adaptors/osmosis"), 
     "gmx": require("../../adaptors/gmx"), 
+    "synthetix": require("../../adaptors/synthetix"), 
 }
