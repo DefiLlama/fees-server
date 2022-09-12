@@ -13,4 +13,5 @@ export default {
     "osmosis": require("../../adaptors/osmosis"), 
     "gmx": require("../../adaptors/gmx"), 
     "synthetix": require("../../adaptors/synthetix"), 
+    "lido": require("../../adaptors/lido"), 
 }

@@ -12,6 +12,7 @@ import compound from "./compound"
 import osmosis from "./osmosis"
 import gmx from "./gmx"
 import synthetix from "./synthetix"
+import lido from "./lido"
 
 export default { 
     sushiswap,
@@ -27,5 +28,6 @@ export default {
     compound,
     osmosis,
     gmx,
-    synthetix
+    synthetix,
+    lido
 };
