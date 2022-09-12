@@ -13,6 +13,7 @@ import osmosis from "./osmosis"
 import gmx from "./gmx"
 import synthetix from "./synthetix"
 import lido from "./lido"
+import curve from "./curve"
 
 export default { 
     sushiswap,
@@ -29,5 +30,6 @@ export default {
     osmosis,
     gmx,
     synthetix,
-    lido
+    lido,
+    curve
 };

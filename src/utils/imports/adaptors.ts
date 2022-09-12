@@ -14,4 +14,5 @@ export default {
     "gmx": require("../../adaptors/gmx"), 
     "synthetix": require("../../adaptors/synthetix"), 
     "lido": require("../../adaptors/lido"), 
+    "curve": require("../../adaptors/curve"), 
 }

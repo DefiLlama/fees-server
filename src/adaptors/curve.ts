@@ -1,95 +1,79 @@
-import { BreakdownAdapter, FeeBreakdownAdapter } from "../utils/adapters.type";
-import { ARBITRUM, ETHEREUM, OPTIMISM, POLYGON, AVAX, FANTOM } from "../helpers/chains";
-import { getStartTimestamp } from "../helpers/getStartTimestamp";
+import { FeeAdapter } from "../utils/adapters.type";
+import { ARBITRUM, ETHEREUM, OPTIMISM, POLYGON, AVAX, FANTOM, XDAI } from "../helpers/chains";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
+import { getTimestampAtStartOfDayUTC, getTimestampAtStartOfPreviousDayUTC } from "../utils/date";
 
 const endpoints = {
   [ETHEREUM]:
-    "https://api.thegraph.com/subgraphs/name/curvefi/curve",
+    "https://api.thegraph.com/subgraphs/name/convex-community/volume-mainnet-test",
   [OPTIMISM]:
-    "https://api.thegraph.com/subgraphs/name/dmihal/curve-optimism",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-optimism-test",
   [ARBITRUM]:
-    "https://api.thegraph.com/subgraphs/name/dmihal/curve-arbitrum",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test",
   [POLYGON]:
-    "https://api.thegraph.com/subgraphs/name/dmihal/curve-polygon",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-polygon-test",
   [AVAX]:
-    "https://api.thegraph.com/subgraphs/name/dmihal/curve-avalanche",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche-test",
   [FANTOM]:
-    "https://api.thegraph.com/subgraphs/name/dmihal/curve-fantom",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-fantom-test",
+  [XDAI]:
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-xdai-test",
 };
 
-const getCurveFees = (graphUrls: IGraphUrls) => {
-  const graphQuery = gql`query fees($timestamp_gte: Int!, $timestamp_lte: Int!) 
+const graph = (graphUrls: IGraphUrls) => {
+  const graphQuery = gql`query fees($yesterdaysTimestamp: Int!, $todaysTimestamp: Int!) 
   {
-    dailyVolumes (
+    dailyPoolSnapshots (
       orderBy: timestamp
       orderDirection: desc
       first: 1000
       where: {
-        timestamp_gte: $timestamp_gte
-        timestamp_lt: $timestamp_lte
+        timestamp_gte: $yesterdaysTimestamp
+        timestamp_lt: $todaysTimestamp
       }
     ) {
-      pool {
-        fee
-        adminFee
-        assetType
-        name
-      }
-      volume
-      timestamp
+      totalDailyFeesUSD
+      adminFeesUSD
     }
-  }
-  `;
-  
+  }`;
+
   return (chain: Chain) => {
     return async (timestamp: number) => {
-      const dateId = getUniswapDateId(new Date(timestamp * 1000));
+    
+      const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp)
+      const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
 
       const graphRes = await request(graphUrls[chain], graphQuery, {
-        dateId,
+        todaysTimestamp, yesterdaysTimestamp
       });
+      const feesPerPool = graphRes.dailyPoolSnapshots.map((vol: any): number => {
+        return parseFloat(vol.totalDailyFeesUSD);
+      })
+      const revPerPool = graphRes.dailyPoolSnapshots.map((vol: any): number => {
+        return parseFloat(vol.adminFeesUSD);
+      });
+
+      const dailyFee = feesPerPool.reduce((acc: number, curr: number) => acc + curr, 0.);
+      const dailyRev = revPerPool.reduce((acc: number, curr: number) => acc + curr, 0.);
 
       return {
         timestamp,
-        totalFees: graphRes[DEFAULT_TOTAL_FEES_FACTORY][0][DEFAULT_TOTAL_FEES_FIELD],
-        dailyFees: graphRes[DEFAULT_DAILY_FEES_FACTORY][DEFAULT_DAILY_FEES_FIELD],
-        totalRevenue: "0", // uniswap has no rev yet
-        dailyRevenue: "0", // uniswap has no rev yet
+        totalFees: "0",
+        dailyFees: dailyFee.toString(),
+        totalRevenue: "0",
+        dailyRevenue: dailyRev.toString(),
       };
-    };
-  };
+    }
+  }
 };
 
-const adapter: FeeBreakdownAdapter = {
-  breakdown: {
-    v3: {
-      [ETHEREUM]: {
-        fetch: v3Graphs(ETHEREUM),
-        start: getStartTimestamp({
-          endpoints: endpoints,
-          chain: ETHEREUM,
-          volumeField: VOLUME_USD,
-        }),
-      },
-      // [ARBITRUM]: {
-      //   fetch: v3Graphs(ARBITRUM),
-      //   start: getStartTimestamp({
-      //     endpoints: endpoints,
-      //     chain: ARBITRUM,
-      //     volumeField: VOLUME_USD,
-      //   }),
-      // },
-      // [POLYGON]: {
-      //   fetch: v3Graphs(POLYGON),
-      //   start: getStartTimestamp({
-      //     endpoints: endpoints,
-      //     chain: POLYGON,
-      //     volumeField: VOLUME_USD,
-      //   }),
-      },
+const adapter: FeeAdapter = {
+  fees: {
+    [ETHEREUM]: {
+      fetch: graph(endpoints)(ETHEREUM),
+      start: 1577854800,
     },
   }
 }
