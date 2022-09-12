@@ -13,7 +13,7 @@ const endpoints = {
   [ARBITRUM]:
   "https://api.thegraph.com/subgraphs/name/convex-community/volume-arbitrum-test",
   [POLYGON]:
-  "https://api.thegraph.com/subgraphs/name/convex-community/volume-polygon-test",
+  "https://api.thegraph.com/subgraphs/name/convex-community/volume-matic-test",
   [AVAX]:
   "https://api.thegraph.com/subgraphs/name/convex-community/volume-avalanche-test",
   [FANTOM]:
@@ -74,6 +74,30 @@ const adapter: FeeAdapter = {
     [ETHEREUM]: {
       fetch: graph(endpoints)(ETHEREUM),
       start: 1577854800,
+    },
+    [OPTIMISM]: {
+      fetch: graph(endpoints)(OPTIMISM),
+      start: 1620532800,
+    },
+    [ARBITRUM]: {
+      fetch: graph(endpoints)(ARBITRUM),
+      start: 1632110400,
+    },
+    [POLYGON]: {
+      fetch: graph(endpoints)(POLYGON),
+      start: 1620014400,
+    },
+    [AVAX]: {
+      fetch: graph(endpoints)(AVAX),
+      start: 1633492800,
+    },
+    [FANTOM]: {
+      fetch: graph(endpoints)(FANTOM),
+      start: 1620532800,
+    },
+    [XDAI]: {
+      fetch: graph(endpoints)(XDAI),
+      start: 1620532800,
     },
   }
 }
