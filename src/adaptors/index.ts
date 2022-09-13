@@ -14,6 +14,7 @@ import gmx from "./gmx"
 import synthetix from "./synthetix"
 import lido from "./lido"
 import curve from "./curve"
+import convex from "./convex"
 
 export default { 
     sushiswap,
@@ -31,5 +32,6 @@ export default {
     gmx,
     synthetix,
     lido,
-    curve
+    curve,
+    convex
 };

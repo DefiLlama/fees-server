@@ -15,4 +15,5 @@ export default {
     "synthetix": require("../../adaptors/synthetix"), 
     "lido": require("../../adaptors/lido"), 
     "curve": require("../../adaptors/curve"), 
+    "convex": require("../../adaptors/convex"), 
 }
