@@ -20,4 +20,5 @@ export default {
     "pangolin": require("../../adaptors/pangolin"),
     "quickswap": require("../../adaptors/quickswap"),
     "velodrome": require("../../adaptors/velodrome"),
+    "ethereum": require("../../adaptors/ethereum"),
 }

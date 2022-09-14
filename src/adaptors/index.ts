@@ -19,6 +19,7 @@ import looksrare from "./looksrare"
 import pangolin from "./pangolin"
 import quickswap from "./quickswap"
 import velodrome from "./velodrome"
+import ethereum from "./ethereum"
 
 export default { 
     sushiswap,
@@ -41,5 +42,6 @@ export default {
     looksrare,
     pangolin,
     quickswap,
-    velodrome
+    velodrome,
+    ethereum
 };
