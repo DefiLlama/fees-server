@@ -16,4 +16,5 @@ export default {
     "lido": require("../../adaptors/lido"), 
     "curve": require("../../adaptors/curve"), 
     "convex": require("../../adaptors/convex"), 
+    "looksrare": require("../../adaptors/looksrare"), 
 }

@@ -15,6 +15,7 @@ import synthetix from "./synthetix"
 import lido from "./lido"
 import curve from "./curve"
 import convex from "./convex"
+import looksrare from "./looksrare"
 
 export default { 
     sushiswap,
@@ -33,5 +34,6 @@ export default {
     synthetix,
     lido,
     curve,
-    convex
+    convex,
+    looksrare
 };
