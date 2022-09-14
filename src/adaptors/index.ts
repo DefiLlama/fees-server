@@ -16,6 +16,7 @@ import lido from "./lido"
 import curve from "./curve"
 import convex from "./convex"
 import looksrare from "./looksrare"
+import pangolin from "./pangolin"
 
 export default { 
     sushiswap,
@@ -35,5 +36,6 @@ export default {
     lido,
     curve,
     convex,
-    looksrare
+    looksrare,
+    pangolin
 };

@@ -8,6 +8,6 @@ import { handler } from "../src/handlers/storeFees";
 import { protocolAdapterData } from "../src/utils/adapters";
 
 handler({
-    protocolIndexes: [protocolAdapterData.findIndex(va => va.adapterKey==='aave')],
+    protocolIndexes: [protocolAdapterData.findIndex(va => va.adapterKey==='pangolin')],
     timestamp: 1661384335
 })
