@@ -17,6 +17,8 @@ import curve from "./curve"
 import convex from "./convex"
 import looksrare from "./looksrare"
 import pangolin from "./pangolin"
+import quickswap from "./quickswap"
+import velodrome from "./velodrome"
 
 export default { 
     sushiswap,
@@ -37,5 +39,7 @@ export default {
     curve,
     convex,
     looksrare,
-    pangolin
+    pangolin,
+    quickswap,
+    velodrome
 };

@@ -17,5 +17,7 @@ export default {
     "curve": require("../../adaptors/curve"), 
     "convex": require("../../adaptors/convex"), 
     "looksrare": require("../../adaptors/looksrare"), 
-    "pangolin": require("../../adaptors/pangolin"), 
+    "pangolin": require("../../adaptors/pangolin"),
+    "quickswap": require("../../adaptors/quickswap"),
+    "velodrome": require("../../adaptors/velodrome"),
 }
