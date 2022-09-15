@@ -20,6 +20,9 @@ import pangolin from "./pangolin"
 import quickswap from "./quickswap"
 import velodrome from "./velodrome"
 import ethereum from "./ethereum"
+import bitcoin from "./bitcoin"
+import litecoin from "./litecoin"
+import doge from "./doge"
 
 export default { 
     sushiswap,
@@ -43,5 +46,8 @@ export default {
     pangolin,
     quickswap,
     velodrome,
-    ethereum
+    ethereum,
+    bitcoin,
+    litecoin,
+    doge
 };

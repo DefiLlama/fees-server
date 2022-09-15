@@ -21,4 +21,7 @@ export default {
     "quickswap": require("../../adaptors/quickswap"),
     "velodrome": require("../../adaptors/velodrome"),
     "ethereum": require("../../adaptors/ethereum"),
+    "bitcoin": require("../../adaptors/bitcoin"),
+    "litecoin": require("../../adaptors/litecoin"),
+    "doge": require("../../adaptors/doge"),
 }
