@@ -1,5 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
-import { ETHEREUM } from "../helpers/chains";
+import { DOGE } from "../helpers/chains";
 import { getTimestampAtStartOfPreviousDayUTC, getTimestampAtStartOfDayUTC } from "../utils/date";
 import { getOneDayFees } from "../helpers/getChainFees";
 
@@ -17,7 +17,7 @@ const graphs = () => {
         totalFees: "0",
         dailyFees: dailyFee.toString(),
         totalRevenue: "0",
-        dailyRevenue: dailyFee.toString(),
+        dailyRevenue: "0",
       };
     };
   };
@@ -25,7 +25,7 @@ const graphs = () => {
 
 const adapter: FeeAdapter = {
   fees: {
-    [ETHEREUM]: {
+    [DOGE]: {
         fetch: graphs()(),
         start: 1386478800,
     },

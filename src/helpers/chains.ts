@@ -12,6 +12,9 @@ const POLYGON = "polygon";
 const RONIN = "ronin";
 const XDAI = "xdai";
 const AURORA = "aurora";
+const BITCOIN = "bitcoin";
+const LITECOIN = "litecoin";
+const DOGE = "doge";
 
 export {
   ARBITRUM,
@@ -28,4 +31,7 @@ export {
   RONIN,
   XDAI,
   AURORA,
+  BITCOIN,
+  LITECOIN,
+  DOGE
 };
