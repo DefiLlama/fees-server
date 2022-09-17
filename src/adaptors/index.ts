@@ -23,8 +23,9 @@ import ethereum from "./ethereum"
 import bitcoin from "./bitcoin"
 import litecoin from "./litecoin"
 import doge from "./doge"
+import biswap from "./biswap"
 
-export default { 
+export default {
     sushiswap,
     mooniswap,
     uniswap,
@@ -49,5 +50,6 @@ export default {
     ethereum,
     bitcoin,
     litecoin,
-    doge
+    doge,
+    biswap
 };
