@@ -12,6 +12,7 @@ import { canGetBlock } from "../helpers/getBlock"
 interface IHandlerEvent {
   protocolIndexes: number[]
   timestamp?: number
+  local?: boolean
 }
 
 export interface IRecordFeeData {
@@ -118,8 +119,10 @@ export const handler = async (event: IHandlerEvent) => {
       console.log("Retrieved", "revenue", id, fetchCurrentDayTimestamp, dailyRevenue)
       // TODO: make this more comprehensive
       const adapterType = !adapter.adapterType ? "protocol" : "chain"
-      await storeFees(new Fee(FeeType.dailyFees, id, adapterType, fetchCurrentDayTimestamp, dailyFees))
-      await storeFees(new Fee(FeeType.dailyRevenue, id, adapterType, fetchCurrentDayTimestamp, dailyRevenue))
+      if(event.local !== true){
+        await storeFees(new Fee(FeeType.dailyFees, id, adapterType, fetchCurrentDayTimestamp, dailyFees))
+        await storeFees(new Fee(FeeType.dailyRevenue, id, adapterType, fetchCurrentDayTimestamp, dailyRevenue))
+      }
     }
     catch (error) {
       const err = error as Error
