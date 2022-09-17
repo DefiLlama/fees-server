@@ -69,7 +69,7 @@ export const protocolAdapterData: Adaptor[] = Object.entries(allFeeAdapters).map
         const foundInChains = chains.find(chain => chain.gecko_id?.toLowerCase().includes(adapterKey) || chain.name.toLowerCase().includes(adapterKey))
         if (foundInChains)  {
             return {
-                id: foundInChains.chainId ? foundInChains.chainId.toString() : foundInChains.tokenSymbol?.toLowerCase(),
+                id: foundInChains.chainId ? foundInChains.chainId.toString() : foundInChains.tokenSymbol?.toLowerCase() || foundInChains.name.toLowerCase(),
                 name: foundInChains.name,
                 category: "Chain",
                 symbol: foundInChains.tokenSymbol,
