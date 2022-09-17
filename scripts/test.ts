@@ -11,4 +11,4 @@ handler({
     protocolIndexes: [protocolAdapterData.findIndex(va => va.adapterKey==='pangolin')],
     timestamp: 1661384335,
     local: true,
-})
+}).finally(()=>process.exit(0))
