@@ -1,5 +1,8 @@
 # Fees and Revenue
 
+### Cloning
+Clone this repo with `git clone --recursive`. If you have already cloned it use `git submodule update --init`
+
 ### Table
 
 | PK (S)       | SK (N)          | [chain]              |
