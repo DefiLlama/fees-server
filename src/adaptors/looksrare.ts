@@ -3,7 +3,7 @@ import { ETHEREUM } from "../helpers/chains";
 import { request, gql } from "graphql-request";
 import { IGraphUrls } from "../helpers/graphs.type";
 import { Chain } from "../utils/constants";
-import { getTimestampAtStartOfDayUTC } from "../utils/date";
+import { getTimestampAtStartOfDayUTC, getTimestampAtStartOfPreviousDayUTC } from "../utils/date";
 import { getPrices } from "../utils/prices";
 import BigNumber from "bignumber.js";
 
@@ -15,11 +15,17 @@ const graphs = (graphUrls: IGraphUrls) => {
   return (chain: Chain) => {
     return async (timestamp: number) => {
       const todaysTimestamp = getTimestampAtStartOfDayUTC(timestamp);
+      const yesterdaysTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
       const dateId = Math.floor(todaysTimestamp / 86400);
+      const yesDateId = Math.floor(yesterdaysTimestamp / 86400);
 
       const graphQuery = gql
       `{
-        marketplaceDailySnapshot(id: ${dateId}) {
+        today: marketplaceDailySnapshot(id: ${dateId}) {
+          totalRevenueETH
+          marketplaceRevenueETH
+        },
+        yesterday: marketplaceDailySnapshot(id: ${yesDateId}) {
           totalRevenueETH
           marketplaceRevenueETH
         }
@@ -29,8 +35,8 @@ const graphs = (graphUrls: IGraphUrls) => {
       const latestPrice = new BigNumber(pricesObj[ethAddress]["price"])
 
       const graphRes = await request(graphUrls[chain], graphQuery);
-      const dailyFee = new BigNumber(graphRes.marketplaceDailySnapshot.totalRevenueETH)
-      const dailyRev = new BigNumber(graphRes.marketplaceDailySnapshot.marketplaceRevenueETH)
+      const dailyFee = new BigNumber(graphRes.today.totalRevenueETH).minus(new BigNumber(graphRes.yesterday.totalRevenueETH)).multipliedBy(latestPrice)
+      const dailyRev = new BigNumber(graphRes.today.marketplaceRevenueETH).minus(new BigNumber(graphRes.yesterday.marketplaceRevenueETH)).multipliedBy(latestPrice)
 
       return {
         timestamp,
