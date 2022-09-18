@@ -1,5 +1,6 @@
 import { FeeAdapter } from "../utils/adapters.type";
 import { getTimestampAtStartOfDayUTC } from "../utils/date";
+import { fetchURL } from "@defillama/adapters/projects/helper/utils";
 import axios from "axios"
 
 const feeEndpoint = "https://api-osmosis.imperator.co/fees/v1/total/historical"
@@ -11,7 +12,7 @@ interface IChartItem {
 
 const fetch = async (timestamp: number) => {
   const dayTimestamp = getTimestampAtStartOfDayUTC(timestamp)
-  const historicalFees: IChartItem[] = (await axios.get(feeEndpoint))?.data;
+  const historicalFees: IChartItem[] = (await fetchURL(feeEndpoint))?.data
 
   const totalFee = historicalFees
     .filter(feeItem => (new Date(feeItem.time).getTime() / 1000) <= dayTimestamp)
