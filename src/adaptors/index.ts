@@ -24,6 +24,7 @@ import bitcoin from "./bitcoin"
 import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
+import optimism from "./optimism";
 
 export default {
     sushiswap,
@@ -51,5 +52,6 @@ export default {
     bitcoin,
     litecoin,
     doge,
-    biswap
+    biswap,
+    optimism
 };
