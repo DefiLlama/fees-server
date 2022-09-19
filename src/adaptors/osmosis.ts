@@ -1,5 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
-import { getTimestampAtStartOfDayUTC } from "../utils/date";
+import { getTimestampAtStartOfDayUTC, getTimestampAtStartOfPreviousDayUTC } from "../utils/date";
 import { fetchURL } from "@defillama/adapters/projects/helper/utils";
 import axios from "axios"
 
@@ -11,7 +11,7 @@ interface IChartItem {
 }
 
 const fetch = async (timestamp: number) => {
-  const dayTimestamp = getTimestampAtStartOfDayUTC(timestamp)
+  const dayTimestamp = getTimestampAtStartOfPreviousDayUTC(timestamp)
   const historicalFees: IChartItem[] = (await fetchURL(feeEndpoint))?.data
 
   const totalFee = historicalFees
