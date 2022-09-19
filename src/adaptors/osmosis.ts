@@ -1,5 +1,5 @@
 import { FeeAdapter } from "../utils/adapters.type";
-import { getTimestampAtStartOfDayUTC, getTimestampAtStartOfPreviousDayUTC } from "../utils/date";
+import { getTimestampAtStartOfPreviousDayUTC } from "../utils/date";
 import { fetchURL } from "@defillama/adapters/projects/helper/utils";
 import axios from "axios"
 
