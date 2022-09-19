@@ -118,7 +118,7 @@ functions:
     handler: src/handlers/triggerStoreFees.default
     timeout: 900
     events:
-      - schedule: cron(* 23 * * ? *)
+      - schedule: cron(0 23 * * ? *)
 
 
 resources:
