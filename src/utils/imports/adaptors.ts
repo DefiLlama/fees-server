@@ -15,7 +15,7 @@ export default {
     "synthetix": require("../../adaptors/synthetix"),
     "lido": require("../../adaptors/lido"),
     "curve": require("../../adaptors/curve"),
-    "convex": require("../../adaptors/convex"),
+    // "convex": require("../../adaptors/convex"),
     "looksrare": require("../../adaptors/looksrare"),
     "pangolin": require("../../adaptors/pangolin"),
     "quickswap": require("../../adaptors/quickswap"),

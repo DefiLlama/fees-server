@@ -42,7 +42,7 @@ export default {
     synthetix,
     lido,
     curve,
-    convex,
+    // convex,
     looksrare,
     pangolin,
     quickswap,
