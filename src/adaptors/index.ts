@@ -32,7 +32,7 @@ export default {
     spookyswap,
     traderjoe,
     pancakeswap,
-    balancer,
+    // balancer,
     makerdao,
     bsc,
     aave,

@@ -5,7 +5,7 @@ export default {
     "spookyswap": require("../../adaptors/spookyswap"),
     "traderjoe": require("../../adaptors/traderjoe"),
     "pancakeswap": require("../../adaptors/pancakeswap"),
-    "balancer": require("../../adaptors/balancer"),
+    // "balancer": require("../../adaptors/balancer"),
     "makerdao": require("../../adaptors/makerdao"),
     "bsc": require("../../adaptors/bsc"),
     "aave": require("../../adaptors/aave"),
