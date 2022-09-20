@@ -18,7 +18,7 @@ export default {
     // "convex": require("../../adaptors/convex"),
     "looksrare": require("../../adaptors/looksrare"),
     "pangolin": require("../../adaptors/pangolin"),
-    "quickswap": require("../../adaptors/quickswap"),
+    // "quickswap": require("../../adaptors/quickswap"),
     "velodrome": require("../../adaptors/velodrome"),
     "ethereum": require("../../adaptors/ethereum"),
     "bitcoin": require("../../adaptors/bitcoin"),

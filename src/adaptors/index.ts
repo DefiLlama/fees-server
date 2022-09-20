@@ -46,7 +46,7 @@ export default {
     // convex,
     looksrare,
     pangolin,
-    quickswap,
+    // quickswap,
     velodrome,
     ethereum,
     bitcoin,
