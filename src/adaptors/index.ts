@@ -25,6 +25,7 @@ import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
 import apeswap from "./apeswap";
+import wombatExchange from "./wombat-exchange";
 
 export default {
     sushiswap,
@@ -33,7 +34,7 @@ export default {
     spookyswap,
     traderjoe,
     pancakeswap,
-    balancer,
+    // balancer,
     makerdao,
     bsc,
     aave,
@@ -43,7 +44,7 @@ export default {
     synthetix,
     lido,
     curve,
-    convex,
+    // convex,
     looksrare,
     pangolin,
     quickswap,
@@ -53,5 +54,6 @@ export default {
     litecoin,
     doge,
     biswap,
-    apeswap
+    apeswap,
+    "wombat-exchange" : wombatExchange
 };

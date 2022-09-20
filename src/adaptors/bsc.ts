@@ -49,8 +49,8 @@ const graphs = (graphUrls: IGraphUrls) => {
         timestamp,
         totalFees: finalTotalFee.toString(),
         dailyFees: finalDailyFee.toString(),
-        totalRevenue: finalTotalFee.toString(),
-        dailyRevenue: finalDailyFee.toString(),
+        totalRevenue: "0",
+        dailyRevenue: "0",
       };
     };
   };

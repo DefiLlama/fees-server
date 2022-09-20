@@ -5,7 +5,7 @@ export default {
     "spookyswap": require("../../adaptors/spookyswap"),
     "traderjoe": require("../../adaptors/traderjoe"),
     "pancakeswap": require("../../adaptors/pancakeswap"),
-    "balancer": require("../../adaptors/balancer"),
+    // "balancer": require("../../adaptors/balancer"),
     "makerdao": require("../../adaptors/makerdao"),
     "bsc": require("../../adaptors/bsc"),
     "aave": require("../../adaptors/aave"),
@@ -15,7 +15,7 @@ export default {
     "synthetix": require("../../adaptors/synthetix"),
     "lido": require("../../adaptors/lido"),
     "curve": require("../../adaptors/curve"),
-    "convex": require("../../adaptors/convex"),
+    // "convex": require("../../adaptors/convex"),
     "looksrare": require("../../adaptors/looksrare"),
     "pangolin": require("../../adaptors/pangolin"),
     "quickswap": require("../../adaptors/quickswap"),
@@ -26,4 +26,5 @@ export default {
     "doge": require("../../adaptors/doge"),
     "biswap": require("../../adaptors/biswap"),
     "apeswap": require("../../adaptors/apeswap"),
+    "wombat-exchange": require("../../adaptors/wombat-exchange"),
 }

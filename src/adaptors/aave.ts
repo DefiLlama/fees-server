@@ -410,10 +410,6 @@ const adapter: FeeAdapter = {
       },
     },
     v3: {
-      [ETHEREUM]: {
-        fetch: v3Graphs(v3Endpoints)(ETHEREUM),
-        start: 1647230400
-      },
       [AVAX]: {
         fetch: v3Graphs(v3Endpoints)(AVAX),
         start: 1647230400

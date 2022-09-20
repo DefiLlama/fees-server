@@ -15,6 +15,7 @@ const graph = (graphUrls: IGraphUrls) => {
   return (chain: Chain) => {
     return async (timestamp: number) => {
         const dateId = Math.floor(getTimestampAtStartOfDayUTC(timestamp) / 86400)
+        console.log(dateId)
 
         const graphQuery = gql
         `{

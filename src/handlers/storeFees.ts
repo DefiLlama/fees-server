@@ -44,6 +44,7 @@ export const handler = async (event: IHandlerEvent) => {
 
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
     const { id, adapterKey } = protocolAdapterData[protocolIndex];
+    console.log(`Grabbing fees for ${id} ${adapterKey}`)
 
     try {
       // Import adapter
