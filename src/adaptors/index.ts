@@ -25,6 +25,7 @@ import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
 import raydium from "./raydium"
+import wombatExchange from "./wombat-exchange";
 
 export default {
     sushiswap,
@@ -46,12 +47,13 @@ export default {
     // convex,
     looksrare,
     pangolin,
-    quickswap,
+    // quickswap,
     velodrome,
     ethereum,
     bitcoin,
     litecoin,
     doge,
     biswap,
-    raydium
+    raydium,
+    "wombat-exchange" : wombatExchange
 };
