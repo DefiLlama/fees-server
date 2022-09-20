@@ -25,6 +25,7 @@ import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
 import spiritswap from "./spiritswap"
+import raydium from "./raydium"
 import wombatExchange from "./wombat-exchange";
 
 export default {
@@ -47,7 +48,7 @@ export default {
     // convex,
     looksrare,
     pangolin,
-    quickswap,
+    // quickswap,
     velodrome,
     ethereum,
     bitcoin,
@@ -55,5 +56,6 @@ export default {
     doge,
     biswap,
     spiritswap,
+    raydium,
     "wombat-exchange" : wombatExchange
 };
