@@ -24,9 +24,17 @@ const graphs = (graphUrls: IGraphUrls) => {
 
       const graphRes = await request(graphUrls[chain], graphQuery, { todaysTimestamp, yesterdaysTimestamp, product: "exchange" } );
 
-      const dailyFee = graphRes.totals.reduce((accumulator: number, dailyTotal: any) => {
+      let dailyFee = graphRes.totals.reduce((accumulator: number, dailyTotal: any) => {
         return accumulator + Number(dailyTotal.totalFeesGeneratedInUSD)
       }, 0);
+      
+      if (chain == OPTIMISM) {
+        const graphResOptimism = await request(graphUrls[chain], graphQuery, { todaysTimestamp, yesterdaysTimestamp, product: "futures" } );
+
+        dailyFee += graphResOptimism.totals.reduce((accumulator: number, dailyTotal: any) => {
+          return accumulator + Number(dailyTotal.totalFeesGeneratedInUSD)
+        }, 0);
+      }
 
       return {
         timestamp,

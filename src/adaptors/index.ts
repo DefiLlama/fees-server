@@ -25,6 +25,8 @@ import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
 import optimism from "./optimism";
+import raydium from "./raydium"
+import wombatExchange from "./wombat-exchange";
 
 export default {
     sushiswap,
@@ -33,7 +35,7 @@ export default {
     spookyswap,
     traderjoe,
     pancakeswap,
-    balancer,
+    // balancer,
     makerdao,
     bsc,
     aave,
@@ -43,15 +45,17 @@ export default {
     synthetix,
     lido,
     curve,
-    convex,
+    // convex,
     looksrare,
     pangolin,
-    quickswap,
+    // quickswap,
     velodrome,
     ethereum,
     bitcoin,
     litecoin,
     doge,
     biswap,
-    optimism
+    optimism,
+    raydium,
+    "wombat-exchange" : wombatExchange
 };

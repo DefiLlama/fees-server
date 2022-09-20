@@ -45,7 +45,6 @@ const v1Graphs = (graphUrls: IGraphUrls) => {
       const graphRes = await request(graphUrls[chain], graphQuery);
       const dailyFee = (new BigNumber(graphRes["today"]["totalSwapFee"]).minus(new BigNumber(graphRes["yesterday"]["totalSwapFee"])))
 
-      console.log(graphRes["today"]["totalSwapFee"])
       return {
         timestamp,
         totalFees: graphRes["today"]["totalSwapFee"],

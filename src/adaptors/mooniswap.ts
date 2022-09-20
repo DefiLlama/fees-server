@@ -3,9 +3,10 @@ import { getDexChainFees } from "../helpers/getUniSubgraphFees";
 import volumeAdapter from "@defillama/adapters/volumes/adapters/mooniswap";
 
 const TOTAL_FEES = 0.003;
+
 const baseAdapter = getDexChainFees({
-  volumeAdapter,
-  totalFees: TOTAL_FEES
+  totalFees: TOTAL_FEES,
+  volumeAdapter
 });
 
 const adapter: FeeAdapter = {
