@@ -27,4 +27,5 @@ export default {
     "biswap": require("../../adaptors/biswap"),
     "raydium": require("../../adaptors/raydium"),
     "wombat-exchange": require("../../adaptors/wombat-exchange"),
+    "woofi": require("../../adaptors/woofi"),
 }
