@@ -55,6 +55,14 @@ const adapter: FeeAdapter = {
           volumeField: VOLUME_USD,
         }),
       },
+      [OPTIMISM]: {
+        fetch: v3Graphs(OPTIMISM),
+        start: getStartTimestamp({
+          endpoints: v3Endpoints,
+          chain: OPTIMISM,
+          volumeField: VOLUME_USD,
+        }),
+      },
     },
   }
 }
