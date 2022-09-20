@@ -25,5 +25,6 @@ export default {
     "litecoin": require("../../adaptors/litecoin"),
     "doge": require("../../adaptors/doge"),
     "biswap": require("../../adaptors/biswap"),
+    "raydium": require("../../adaptors/raydium"),
     "wombat-exchange": require("../../adaptors/wombat-exchange"),
 }
