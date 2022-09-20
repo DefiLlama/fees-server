@@ -26,4 +26,5 @@ export default {
     "doge": require("../../adaptors/doge"),
     "biswap": require("../../adaptors/biswap"),
     "spiritswap": require("../../adaptors/spiritswap"),
+    "wombat-exchange": require("../../adaptors/wombat-exchange"),
 }

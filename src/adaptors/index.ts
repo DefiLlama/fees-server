@@ -25,6 +25,7 @@ import litecoin from "./litecoin"
 import doge from "./doge"
 import biswap from "./biswap"
 import spiritswap from "./spiritswap"
+import wombatExchange from "./wombat-exchange";
 
 export default {
     sushiswap,
@@ -53,5 +54,6 @@ export default {
     litecoin,
     doge,
     biswap,
-    spiritswap
+    spiritswap,
+    "wombat-exchange" : wombatExchange
 };
