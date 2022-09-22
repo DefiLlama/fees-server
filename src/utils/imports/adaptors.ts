@@ -27,6 +27,6 @@ export default {
     "biswap": require("../../adaptors/biswap"),
     "raydium": require("../../adaptors/raydium"),
     "wombat-exchange": require("../../adaptors/wombat-exchange"),
-    "toros": require("../../adaptors/toros"),
+    "tarot": require("../../adaptors/tarot"),
     "woofi": require("../../adaptors/woofi"),
 }

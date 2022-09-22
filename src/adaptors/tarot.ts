@@ -39,11 +39,13 @@ const adapter: FeeAdapter = {
   fees: {
     [FANTOM]: {
         fetch: graphs()(CHAIN.FANTOM),
-        start: 1598671449,
+        runAtCurrTime: true,
+        start: async () => 0,
     },
     [OPTIMISM]: {
       fetch: graphs()(CHAIN.OPTIMISM),
-      start: 1598671449,
+      runAtCurrTime: true,
+      start: async () => 0,
   },
   },
 }

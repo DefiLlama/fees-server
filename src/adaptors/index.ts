@@ -26,7 +26,7 @@ import doge from "./doge"
 import biswap from "./biswap"
 import raydium from "./raydium"
 import wombatExchange from "./wombat-exchange";
-import toros from "./toros";
+import tarot from "./tarot";
 import woofi from "./woofi";
 
 export default {
@@ -58,6 +58,6 @@ export default {
     biswap,
     raydium,
     "wombat-exchange" : wombatExchange,
-    toros,
+    tarot,
     woofi
 };
