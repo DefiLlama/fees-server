@@ -27,6 +27,7 @@ import biswap from "./biswap"
 import raydium from "./raydium"
 import wombatExchange from "./wombat-exchange";
 import toros from "./toros";
+import woofi from "./woofi";
 
 export default {
     sushiswap,
@@ -57,5 +58,6 @@ export default {
     biswap,
     raydium,
     "wombat-exchange" : wombatExchange,
-    toros
+    toros,
+    woofi
 };

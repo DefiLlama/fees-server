@@ -28,4 +28,5 @@ export default {
     "raydium": require("../../adaptors/raydium"),
     "wombat-exchange": require("../../adaptors/wombat-exchange"),
     "toros": require("../../adaptors/toros"),
+    "woofi": require("../../adaptors/woofi"),
 }
