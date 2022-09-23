@@ -1,39 +1,18 @@
-import { FeeAdapter } from "../utils/adapters.type";
-import { fetchURL } from "@defillama/adapters/projects/helper/utils";
-import { getTimestampAtStartOfDay } from "../utils/date";
-import BigNumber from "bignumber.js";
+import { BaseAdapter, FeeAdapter } from "../utils/adapters.type";
+import volumeAdapter from "@defillama/adapters/volumes/adapters/raydium";
+import { getDexChainFees } from "../helpers/getUniSubgraphFees";
 
 const TOTAL_FEES = 0.0025;
 const PROTOCOL_FEES = 0.0003;
 
-const dexVolumeUrl = "https://api.llama.fi/dex/raydium"
-
-const fetch = async (timestamp: number) => {
-  const dayTimestamp = getTimestampAtStartOfDay(timestamp)
-  const historicalVolumes: any[] = (await fetchURL(dexVolumeUrl))?.data.volumeHistory
-  const dailyVolume = historicalVolumes
-    .find(dayItem => dayItem['timestamp'] === dayTimestamp)?.dailyVolume.solana.raydium || 0
-
-  const dailyFee = (new BigNumber(dailyVolume)).multipliedBy(new BigNumber(TOTAL_FEES))
-  const dailyRev = (new BigNumber(dailyVolume)).multipliedBy(new BigNumber(PROTOCOL_FEES))
-
-  return {
-    timestamp: dayTimestamp,
-    totalFees: "0",
-    dailyFees: dailyFee ? `${dailyFee}` : undefined,
-    totalRevenue: "0",
-    dailyRevenue: dailyRev ? `${dailyRev}` : undefined,
-  };
-};
+const feeAdapter: BaseAdapter = getDexChainFees({
+  totalFees: TOTAL_FEES,
+  protocolFees: PROTOCOL_FEES,
+  volumeAdapter
+});
 
 const adapter: FeeAdapter = {
-  fees: {
-    solana: {
-      fetch,
-      runAtCurrTime: true,
-      start: 1,
-    },
-  }
-}
+    fees: feeAdapter
+};
 
 export default adapter;
