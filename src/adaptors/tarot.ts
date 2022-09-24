@@ -20,7 +20,7 @@ const graphs = () => {
         .filter((e: IYield) => e.project === "tarot")
         .filter((e: IYield) => e.chain.toLowerCase() === chain.toLowerCase());
       const fees = pools
-        .map(pool => pool.tvlUsd * pool.apyBase / 365)
+        .map(pool => pool.tvlUsd * pool.apyBase / 100 / 365)
         .reduce((prev, curr) => prev + curr, 0) / .9;
       const revenue = fees * .1;
       return {
