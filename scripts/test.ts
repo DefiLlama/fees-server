@@ -7,7 +7,7 @@ AWS.config.update({ region: 'eu-central-1' });
 
 import { handler } from "../src/handlers/storeFees";
 import { protocolAdapterData } from "../src/utils/adapters";
-import { time } from 'console';
+
 
 export function checkArguments(argv: string[]) {
     if (argv.length < 3) {

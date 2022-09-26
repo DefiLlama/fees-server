@@ -4,7 +4,7 @@ import { Chain } from "@defillama/sdk/build/general";
 import BigNumber from "bignumber.js";
 import { request, gql } from "graphql-request";
 import { getBlock } from "./getBlock";
-import { 
+import {
   getUniqStartOfTodayTimestamp,
   DEFAULT_TOTAL_VOLUME_FACTORY,
   DEFAULT_TOTAL_VOLUME_FIELD,
@@ -57,7 +57,7 @@ const getUniswapV3Fees = (graphUrls: IGraphUrls) => {
       ${DEFAULT_TOTAL_FEES_FIELD}
     }
   }`;
-  
+
   return (chain: Chain) => {
     return async (timestamp: number) => {
       const dateId = getUniswapDateId(new Date(timestamp * 1000));
@@ -84,13 +84,13 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
 
     for (const [version, adapterObj] of Object.entries(volumeBreakdownAdapter)) {
       const volAdapter: Adapter = adapterObj
-      
+
       const baseAdapters = Object.keys(volAdapter).map(chain => {
         const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
           const fetchedResult: VolumeFetchResult = await volAdapter[chain].fetch(timestamp, chainBlocks)
           const chainDailyVolume = fetchedResult.dailyVolume ? fetchedResult.dailyVolume : "0";
           const chainTotalVolume = fetchedResult.totalVolume ? fetchedResult.totalVolume : "0";
-    
+
           return {
             timestamp,
             totalFees: new BigNumber(chainTotalVolume).multipliedBy(totalFees).toString(),
@@ -115,7 +115,7 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
 
     return breakdownAdapter;
   } else {
-    console.log(`Failed to grab dex volume data`)
+    console.log(`Failed to grab dex volume data (volume adapter not include 'breakdown' props)`)
     return {}
   }
 }
@@ -125,13 +125,13 @@ const getDexChainFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGe
   if ('volume' in volumeAdapter) {
     let finalBaseAdapter: BaseAdapter = { }
     const adapterObj = volumeAdapter.volume
-    
+
     const baseAdapters = Object.keys(adapterObj).map(chain => {
       const fetchFees = async (timestamp: number, chainBlocks: ChainBlocks) => {
         const fetchedResult = await adapterObj[chain].fetch(timestamp, chainBlocks)
         const chainDailyVolume = fetchedResult.dailyVolume ? fetchedResult.dailyVolume : "0";
         const chainTotalVolume = fetchedResult.totalVolume ? fetchedResult.totalVolume : "0";
-  
+
         return {
           timestamp,
           totalFees: new BigNumber(chainTotalVolume).multipliedBy(totalFees).toString(),
@@ -154,7 +154,7 @@ const getDexChainFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGe
 
     return finalBaseAdapter;
   } else {
-    console.log(`Failed to grab dex volume data`)
+    console.log(`Failed to grab dex volume data (volume adapter not include 'volume' props)`)
     return {}
   }
 }
@@ -206,7 +206,7 @@ query get_volume($block: Int, $id: Int) {
       const block =
         (getCustomBlock && (await getCustomBlock(timestamp))) ||
         (await getBlock(timestamp, chain, chainBlocks));
-      
+
       const id = getUniswapDateId(new Date(timestamp * 1000));
 
       const graphRes = await request(graphUrls[chain], graphQuery, {

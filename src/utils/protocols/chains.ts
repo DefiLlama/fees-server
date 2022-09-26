@@ -1,11 +1,4 @@
-interface ChainObject {
-    gecko_id?: string | null
-    tvl: number
-    tokenSymbol?: string | null
-    cmcId?: string | null
-    name: string,
-    chainId: number | string | null
-}
+import { ChainObject } from "./types";
 
 const chains: ChainObject[] = [
     {
