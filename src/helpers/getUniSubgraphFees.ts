@@ -115,7 +115,7 @@ const getDexChainBreakdownFees = ({ volumeAdapter, totalFees = 0, protocolFees =
 
     return breakdownAdapter;
   } else {
-    console.log(`Failed to grab dex volume data (volumeAdapter not include 'breakdown' props)`)
+    console.log(`Failed to grab dex volume data (volume adapter not include 'breakdown' props)`)
     return {}
   }
 }
@@ -154,7 +154,7 @@ const getDexChainFees = ({ volumeAdapter, totalFees = 0, protocolFees = 0 }: IGe
 
     return finalBaseAdapter;
   } else {
-    console.log(`Failed to grab dex volume data (volumeAdapter not include 'volume' props)`)
+    console.log(`Failed to grab dex volume data (volume adapter not include 'volume' props)`)
     return {}
   }
 }
