@@ -4,6 +4,7 @@ import { getFees, Fee, FeeType } from "../utils/data/fees";
 import { protocolAdapterData } from "../utils/adapters";
 import { summAllFees } from "../utils/feeCalcs";
 import { IRecordFeeData } from "./storeFees";
+import { fetchConfig } from "../utils/config";
 
 export interface FeeHistoryItem {
   dailyFees: IRecordFeeData;
@@ -28,8 +29,8 @@ export interface IHandlerBodyResponse {
 export const handler = async (event: AWSLambda.APIGatewayEvent): Promise<IResponse> => {
   const protocolName = event.pathParameters?.protocol?.toLowerCase()
   if (!protocolName) throw new Error("Missing protocol name!")
-
-  const feeData = protocolAdapterData.find(
+  const config = await fetchConfig();
+  const feeData = protocolAdapterData(config).find(
       (prot) => prot.adapterKey === protocolName
   );
   if (!feeData) throw new Error("Fee data not found!")
