@@ -5,6 +5,7 @@ import { protocolAdapterData } from "../utils/adapters";
 import { summAllFees } from "../utils/feeCalcs";
 import allSettled from 'promise.allsettled'
 import { FeeHistoryItem, RevenueHistoryItem } from "./getFees";
+import { fetchConfig } from "../utils/config";
 
 export interface FeeItem {
   name: string
@@ -21,8 +22,8 @@ export interface IHandlerBodyResponse {
 }
 
 export const handler = async (): Promise<IResponse> => {
-
-  const feeItems: any[] = await allSettled(protocolAdapterData.map(async (feeData) => {
+  const config = await fetchConfig();
+  const feeItems: any[] = await allSettled(protocolAdapterData(config).map(async (feeData) => {
     const fee = await getFees(feeData.id, feeData.adapterType, FeeType.dailyFees, "ALL")
     const rev = await getFees(feeData.id, feeData.adapterType, FeeType.dailyRevenue, "ALL")
 
@@ -54,7 +55,7 @@ export const handler = async (): Promise<IResponse> => {
       total1dFees: todaysFees ? summAllFees(todaysFees) : 0,
       total1dRevenue: todaysRevenue ? summAllFees(todaysRevenue) : 0,
     }
-    
+
     return feeItemObj
   })).then(result => result.filter(rar => rar.status === 'fulfilled').map(r => r.status === "fulfilled" && r.value))
 

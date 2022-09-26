@@ -8,6 +8,8 @@ import allSettled from 'promise.allsettled'
 import { importFeesAdapter } from "../utils/imports/importAdapter";
 import { storeFees, Fee, FeeType } from "../utils/data/fees";
 import { canGetBlock } from "../helpers/getBlock"
+import { fetchConfig, IConfig } from "../utils/config";
+import { Chain } from "../utils/constants";
 
 interface IHandlerEvent {
   protocolIndexes: number[]
@@ -24,13 +26,14 @@ export interface IRecordFeeData {
 export const handler = async (event: IHandlerEvent) => {
   // Timestamp to query, defaults current timestamp
   const currentTimestamp = event.timestamp || Date.now() / 1000;
+  const config: IConfig = await fetchConfig();
   // Get clean day
   const fetchCurrentDayTimestamp = getTimestampAtStartOfDayUTC(currentTimestamp);
 
   // Get closest block to clean day. Only for EVM compatible ones.
-  const allChains = getAllChainsFromAdapters().filter(chain => chain.toString() !== "celo").filter(canGetBlock)
+  const allChains = getAllChainsFromAdapters(config).filter((chain: Chain) => chain.toString() !== "celo").filter(canGetBlock)
   const chainBlocks = await getChainBlocks(fetchCurrentDayTimestamp, allChains);
-  
+
   async function runAdapter(feeAdapter: BaseAdapter, id: string, version?: string) {
     const chains = Object.keys(feeAdapter)
 
@@ -41,14 +44,13 @@ export const handler = async (event: IHandlerEvent) => {
       timestamp: fetchCurrentDayTimestamp
     }))))
   }
-
   const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
-    const { id, adapterKey } = protocolAdapterData[protocolIndex];
+    const { id, adapterKey } = protocolAdapterData(config)[protocolIndex];
     console.log(`Grabbing fees for ${id} ${adapterKey}`)
 
     try {
       // Import adapter
-      const adapter: FeeAdapter = (await importFeesAdapter(protocolAdapterData[protocolIndex])).default;
+      const adapter: FeeAdapter = (await importFeesAdapter(protocolAdapterData(config)[protocolIndex])).default;
 
       let rawDailyFees: IRecordFeeData[] = []
       let rawDailyRevenue: IRecordFeeData[] = []
@@ -98,7 +100,7 @@ export const handler = async (event: IHandlerEvent) => {
         console.error("Invalid adapter")
         throw new Error("Invalid adapter")
       }
-      
+
       const dailyFees = rawDailyFees.reduce((acc, current: IRecordFeeData) => {
         const chain = Object.keys(current)[0]
         acc[chain] = {

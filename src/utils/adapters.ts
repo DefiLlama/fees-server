@@ -5,6 +5,7 @@ import chains from "./protocols/chains";
 import { Chain } from "./constants";
 import { Protocol, ChainObject } from "./protocols/types";
 import { sluggifyString } from "./sluggify";
+import { IConfig } from "./config";
 
 
 export interface IAdapterInfo {
@@ -39,77 +40,88 @@ const filterIndexProtocol = (protocol: Protocol, adapterKey: string) =>
     || sluggifyString(protocol.name) === adapterKey;
 
 const filterIndexChain = (chain: ChainObject, adapterKey: string) =>
-    chain.gecko_id?.toLowerCase().includes(adapterKey) ||
     chain.name.toLowerCase().includes(adapterKey);
 
-const getProtocolIndex = (isNotChain: boolean, adapterKey: string): (Protocol | ChainObject | undefined) => {
-    const _data = data;
-    return isNotChain ? _data.find((prot: Protocol) => filterIndexProtocol(prot, adapterKey)) : chains.find((chain: ChainObject) => filterIndexChain(chain , adapterKey));
+const getProtocolIndex = (isNotChain: boolean, adapterKey: string, config: IConfig): (Protocol | ChainObject | undefined) => {
+    const chain = Object.keys(config.chainCoingeckoIds).map((name: string) => {
+        return {
+            ...config.chainCoingeckoIds[name],
+            name: name.toLowerCase()
+        }
+    });
+    return isNotChain ? config.protocols.find((prot: Protocol) => filterIndexProtocol(prot, adapterKey))
+        : chain.find((chain: ChainObject) => filterIndexChain(chain , adapterKey));
 }
 
 const allFeeAdapters: Record<string, FeeAdapter> = feeAdaptors;
 
-export const protocolFeeAdapters: FeeAdapter[] = Object.entries(allFeeAdapters).map(adapterObj => {
-    const [adapterKey, adapter] = adapterObj
-    const adapterType = adapter.adapterType
+export const protocolFeeAdapters = (config: IConfig): FeeAdapter[] => {
+    return Object.entries(allFeeAdapters).map(adapterObj => {
+        const [adapterKey, adapter] = adapterObj
+        const adapterType = adapter.adapterType
 
-    const isNotChain = adapterType === undefined;
-    const foundInProtocols = getProtocolIndex(isNotChain, adapterKey);
+        const isNotChain = adapterType === undefined;
+        const foundInProtocols = getProtocolIndex(isNotChain, adapterKey, config);
 
-    if (foundInProtocols) {
-        return allFeeAdapters[adapterKey]
-    }
-    // TODO: Handle better errors
-    console.error(`Missing info for ${adapterKey}!`)
-    return undefined
-}).filter(notUndefined);
-
-export const protocolAdapterData: Adaptor[] = Object.entries(allFeeAdapters).map(adapterObj => {
-    const [adapterKey, adapter] = adapterObj
-    const adapterType = adapter.adapterType
-
-    if (!adapterType) {
-        const isNotChain = true;
-        const foundInProtocols = getProtocolIndex(isNotChain, adapterKey) as Protocol;
         if (foundInProtocols) {
-            return {
-                ...foundInProtocols,
-                adapterType: "protocol",
-                adapterKey
-            }
+            return allFeeAdapters[adapterKey]
         }
-    } else if (adapterType === "chain") {
-        const isNotChain = false;
-        const foundInChains = getProtocolIndex(isNotChain, adapterKey) as ChainObject;
-        if (foundInChains)  {
-            return {
-                id: foundInChains.chainId ? foundInChains.chainId.toString() : foundInChains.tokenSymbol?.toLowerCase() || foundInChains.name.toLowerCase(),
-                name: foundInChains.name,
-                category: "Chain",
-                symbol: foundInChains.tokenSymbol,
-                gecko_id: foundInChains.gecko_id,
-                cmcId: foundInChains.cmcId,
-                adapterType,
-                adapterKey
-            }
-        }
-    }
-    // TODO: Handle better errors
-    console.error(`Missing info for ${adapterKey}!`)
-    return undefined
-}).filter(notUndefined);
+        // TODO: Handle better errors
+        console.error(`Missing info for ${adapterKey}!`)
+        return undefined
+    }).filter(notUndefined);
+}
 
-export const getAllChainsFromAdapters = () => Object.values(protocolFeeAdapters).reduce((acc, adapter) => {
-    if ("fees" in adapter) {
-        const chains = Object.keys(adapter.fees) as Chain[]
-        for (const chain of chains)
-            if (!acc.includes(chain)) acc.push(chain)
-    } else if ("breakdown" in adapter) {
-        for (const brokenDownDex of Object.values(adapter.breakdown)) {
-            const chains = Object.keys(brokenDownDex) as Chain[]
+export const protocolAdapterData = (config: IConfig) => {
+    return Object.entries(allFeeAdapters).map(adapterObj => {
+        const [adapterKey, adapter] = adapterObj
+        const adapterType = adapter.adapterType
+
+        if (!adapterType) {
+            const isNotChain = true;
+            const foundInProtocols = getProtocolIndex(isNotChain, adapterKey, config) as Protocol;
+            if (foundInProtocols) {
+                return {
+                    ...foundInProtocols,
+                    adapterType: "protocol",
+                    adapterKey
+                }
+            }
+        } else if (adapterType === "chain") {
+            const isNotChain = false;
+            const foundInChains = getProtocolIndex(isNotChain, adapterKey, config) as ChainObject;
+            if (foundInChains)  {
+                return {
+                    id: foundInChains.chainId ? foundInChains.chainId.toString() : foundInChains.tokenSymbol?.toLowerCase() || foundInChains.name.toLowerCase(),
+                    name: foundInChains.name,
+                    category: "Chain",
+                    symbol: foundInChains.tokenSymbol,
+                    gecko_id: foundInChains.gecko_id,
+                    cmcId: foundInChains.cmcId,
+                    adapterType,
+                    adapterKey
+                }
+            }
+        }
+        // TODO: Handle better errors
+        console.error(`Missing info for ${adapterKey}!`)
+        return undefined
+    }).filter(notUndefined);
+}
+
+export const getAllChainsFromAdapters = (_: IConfig) => {
+    return Object.values(protocolFeeAdapters).reduce((acc, adapter) => {
+        if ("fees" in adapter) {
+            const chains = Object.keys(adapter.fees) as Chain[]
             for (const chain of chains)
                 if (!acc.includes(chain)) acc.push(chain)
-        }
-    } else console.error("Invalid adapter")
-    return acc
-}, [] as Chain[])
+        } else if ("breakdown" in adapter) {
+            for (const brokenDownDex of Object.values(adapter.breakdown)) {
+                const chains = Object.keys(brokenDownDex as Chain) as Chain[]
+                for (const chain of chains)
+                    if (!acc.includes(chain)) acc.push(chain)
+            }
+        } else console.error("Invalid adapter")
+        return acc
+    }, [] as Chain[])
+}

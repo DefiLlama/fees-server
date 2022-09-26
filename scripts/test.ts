@@ -1,4 +1,3 @@
-import * as path from 'path'
 import AWS from "aws-sdk";
 
 // Importing env file
@@ -7,6 +6,7 @@ AWS.config.update({ region: 'eu-central-1' });
 
 import { handler } from "../src/handlers/storeFees";
 import { protocolAdapterData } from "../src/utils/adapters";
+import { fetchConfig } from '../src/utils/config';
 
 
 export function checkArguments(argv: string[]) {
@@ -19,9 +19,10 @@ export function checkArguments(argv: string[]) {
 // Check if all arguments are present
 checkArguments(process.argv);
 
-const runAdapter = () => {
+const runAdapter = async () => {
     const adapterKey = process.argv[2]
-    const protocolIndex = protocolAdapterData.findIndex(va => va.adapterKey === adapterKey)
+    const config = await fetchConfig();
+    const protocolIndex = protocolAdapterData(config).findIndex(va => va.adapterKey === adapterKey)
 
     const timestamp = process.argv[3]
 
@@ -37,4 +38,7 @@ const runAdapter = () => {
     }
 }
 
-runAdapter()
+(async () => {
+    await runAdapter();
+    // process.exit(0);
+})();
