@@ -30,4 +30,5 @@ export default {
     "tarot": require("../../adaptors/tarot"),
     "woofi": require("../../adaptors/woofi"),
     "frax-swap": require("../../adaptors/frax-swap"),
+    "mojitoswap": require("../../adaptors/mojitoswap"),
 }

@@ -29,6 +29,7 @@ import wombatExchange from "./wombat-exchange";
 import tarot from "./tarot";
 import woofi from "./woofi";
 import fraxSwap from "./frax-swap";
+import mojitoswap from "./mojitoswap";
 
 export default {
     sushiswap,
@@ -61,5 +62,6 @@ export default {
     "wombat-exchange" : wombatExchange,
     tarot,
     woofi,
-    "frax-swap": fraxSwap
+    "frax-swap": fraxSwap,
+    mojitoswap
 };
