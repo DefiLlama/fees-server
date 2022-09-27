@@ -277,19 +277,19 @@ const adapter: FeeAdapter = {
     fees: {
         [ETHEREUM]: {
             fetch: graph(endpoints)(ETHEREUM),
-            start: 1577854800,
+            start: 1636046347,
         },
         [OPTIMISM]: {
             fetch: graph(endpoints)(OPTIMISM),
-            start: 1620532800,
+            start: 1657041547,
         },
         [ARBITRUM]: {
             fetch: graph(endpoints)(ARBITRUM),
-            start: 1632110400,
+            start: 1657041547,
         },
         [POLYGON]: {
             fetch: graph(endpoints)(POLYGON),
-            start: 1620014400,
+            start: 1656782347,
         },
     }
 }
