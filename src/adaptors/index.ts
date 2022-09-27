@@ -28,6 +28,7 @@ import raydium from "./raydium"
 import wombatExchange from "./wombat-exchange";
 import tarot from "./tarot";
 import woofi from "./woofi";
+import fraxSwap from "./frax-swap";
 
 export default {
     sushiswap,
@@ -59,5 +60,6 @@ export default {
     raydium,
     "wombat-exchange" : wombatExchange,
     tarot,
-    woofi
+    woofi,
+    "frax-swap": fraxSwap
 };
