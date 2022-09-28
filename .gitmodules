@@ -2,3 +2,6 @@
 	path = DefiLlama-Adapters
 	url = https://github.com/DefiLlama/DefiLlama-Adapters.git
 
+[submodule "fees-adapters"]
+	path = fees-adapters
+	url = https://github.com/DefiLlama/fees-adapters.git

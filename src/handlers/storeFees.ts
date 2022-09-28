@@ -24,6 +24,7 @@ export interface IRecordFeeData {
 }
 
 export const handler = async (event: IHandlerEvent) => {
+  console.log("hi")
   // Timestamp to query, defaults current timestamp
   const currentTimestamp = event.timestamp || Date.now() / 1000;
   const config: IConfig = await fetchConfig();
@@ -44,7 +45,7 @@ export const handler = async (event: IHandlerEvent) => {
       timestamp: fetchCurrentDayTimestamp
     }))))
   }
-  const feeResponses = await Promise.all(event.protocolIndexes.map(async protocolIndex => {
+  const feeResponses = await Promise.all([0, 1, 2, 3].map(async protocolIndex => {
     const { id, adapterKey } = protocolAdapterData(config)[protocolIndex];
     console.log(`Grabbing fees for ${id} ${adapterKey}`)
 
@@ -118,11 +119,11 @@ export const handler = async (event: IHandlerEvent) => {
         }
         return acc
       }, {} as IRecordFeeData)
-      console.log("Retrieved", "fees", id, fetchCurrentDayTimestamp, dailyFees)
-      console.log("Retrieved", "revenue", id, fetchCurrentDayTimestamp, dailyRevenue)
+      console.log("Retrieved", "fees", adapterKey, fetchCurrentDayTimestamp, dailyFees)
+      console.log("Retrieved", "revenue", adapterKey, fetchCurrentDayTimestamp, dailyRevenue)
       // TODO: make this more comprehensive
       const adapterType = !adapter.adapterType ? "protocol" : "chain"
-      if(event.local !== true){
+      if(true !== true){
         await storeFees(new Fee(FeeType.dailyFees, id, adapterType, fetchCurrentDayTimestamp, dailyFees))
         await storeFees(new Fee(FeeType.dailyRevenue, id, adapterType, fetchCurrentDayTimestamp, dailyRevenue))
       }
@@ -136,5 +137,7 @@ export const handler = async (event: IHandlerEvent) => {
 
   return
 };
+
+handler({protocolIndexes:[0]})
 
 export default wrapScheduledLambda(handler);
