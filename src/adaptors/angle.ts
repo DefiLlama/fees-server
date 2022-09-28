@@ -53,13 +53,13 @@ type CoreFee = {
 }
 
 type BorrowFeeQuery = {
-    today: BorrowFee,
-    yesterday: BorrowFee
+    today: BorrowFee[],
+    yesterday: BorrowFee[]
 };
 
 type CoreFeeQuery = {
-    today: CoreFee,
-    yesterday: CoreFee
+    today: CoreFee[],
+    yesterday: CoreFee[]
 };
 
 type BorrowResult = { totalFees: BorrowFee, deltaFees: BorrowFee };
@@ -85,7 +85,7 @@ type veANGLEQuery = {
 const CORE_QUERY = gql
     `
   query Query ($today: BigInt!, $yesterday: BigInt!) {
-    todayFees : feeHistoricalDatas (where: {timestamp_lt: $today }, first: 1)  {
+    today : feeHistoricalDatas (where: {timestamp_lt: $today }, first: 1, orderBy: timestamp, orderDirection: desc)  {
         totalProtocolFees
         totalSLPFees
         totalKeeperFees
@@ -94,7 +94,7 @@ const CORE_QUERY = gql
         blockNumber
         timestamp
     }
-    yesterdayFees : feeHistoricalDatas (where: {timestamp_lt: $yesterday }, first: 1)  {
+    yesterday : feeHistoricalDatas (where: {timestamp_lt: $yesterday }, first: 1, orderBy: timestamp, orderDirection: desc)  {
         totalProtocolFees
         totalSLPFees
         totalKeeperFees
@@ -109,7 +109,7 @@ const CORE_QUERY = gql
 const BORROW_QUERY = gql
     `
   query Query ($today: BigInt!, $yesterday: BigInt!) {
-    todayFees : feeHistoricalDatas (where: {timestamp_lt: $today }, first: 1)  {
+    today : feeHistoricalDatas (where: {timestamp_lt: $today }, first: 1, orderBy: timestamp, orderDirection: desc)  {
       surplusFromInterests
       surplusFromBorrowFees
       surplusFromRepayFees
@@ -117,7 +117,7 @@ const BORROW_QUERY = gql
       blockNumber
       timestamp
     }
-    yesterdayFees : feeHistoricalDatas (where: {timestamp_lt: $yesterday }, first: 1)  {
+    yesterday : feeHistoricalDatas (where: {timestamp_lt: $yesterday }, first: 1, orderBy: timestamp, orderDirection: desc)  {
       surplusFromInterests
       surplusFromBorrowFees
       surplusFromRepayFees
@@ -149,22 +149,27 @@ const getCoreFees = async (graphUrl: string, todayTimestamp: number, yesterdayTi
         yesterday: yesterdayTimestamp
     }) as CoreFeeQuery;
 
-    for (const [key] of Object.entries(queryCoreFees.today)) {
-        queryCoreFees.today[key as keyof CoreFee] = queryCoreFees.today[key as keyof CoreFee] / BASE_TOKENS
-        queryCoreFees.yesterday[key as keyof CoreFee] = queryCoreFees.yesterday[key as keyof CoreFee] / BASE_TOKENS
-    }
+    let processedFees = { today: {} as CoreFee, yesterday: {} as CoreFee };
+    processedFees.today.timestamp = queryCoreFees.today[0].timestamp
+    processedFees.yesterday.timestamp = queryCoreFees.yesterday[0].timestamp
+    processedFees.today.blockNumber = queryCoreFees.today[0].blockNumber
+    CORE_FEE_NAMES.forEach((key,) => {
+        processedFees.today[key as keyof CoreFee] = queryCoreFees.today[0][key as keyof CoreFee] / BASE_TOKENS
+        processedFees.yesterday[key as keyof CoreFee] = queryCoreFees.yesterday[0][key as keyof CoreFee] / BASE_TOKENS
+    });
 
-    const normalizer = (queryCoreFees.today.timestamp - queryCoreFees.today.timestamp) / DAY;
+    const noNewDataPoint = processedFees.today.timestamp === processedFees.yesterday.timestamp;
+    const normalizer = (processedFees.today.timestamp - processedFees.yesterday.timestamp) / DAY;
     const deltaCoreFees = {
-        totalProtocolFees: (queryCoreFees.today.totalProtocolFees - queryCoreFees.today.totalProtocolFees) / normalizer,
-        totalKeeperFees: (queryCoreFees.today.totalKeeperFees - queryCoreFees.today.totalKeeperFees) / normalizer,
-        totalSLPFees: (queryCoreFees.today.totalSLPFees - queryCoreFees.today.totalSLPFees) / normalizer,
-        totalProtocolInterests: (queryCoreFees.today.totalProtocolInterests - queryCoreFees.today.totalProtocolInterests) / normalizer,
-        totalSLPInterests: (queryCoreFees.today.totalSLPInterests - queryCoreFees.today.totalSLPInterests) / normalizer,
-        timestamp: queryCoreFees.today.timestamp,
-        blockNumber: queryCoreFees.today.blockNumber,
+        totalProtocolFees: noNewDataPoint ? 0 : (processedFees.today.totalProtocolFees - processedFees.today.totalProtocolFees) / normalizer,
+        totalKeeperFees: noNewDataPoint ? 0 : (processedFees.today.totalKeeperFees - processedFees.today.totalKeeperFees) / normalizer,
+        totalSLPFees: noNewDataPoint ? 0 : (processedFees.today.totalSLPFees - processedFees.today.totalSLPFees) / normalizer,
+        totalProtocolInterests: noNewDataPoint ? 0 : (processedFees.today.totalProtocolInterests - processedFees.today.totalProtocolInterests) / normalizer,
+        totalSLPInterests: noNewDataPoint ? 0 : (processedFees.today.totalSLPInterests - processedFees.today.totalSLPInterests) / normalizer,
+        timestamp: noNewDataPoint ? 0 : processedFees.today.timestamp,
+        blockNumber: noNewDataPoint ? 0 : processedFees.today.blockNumber,
     }
-    return { totalFees: queryCoreFees.today, deltaFees: deltaCoreFees };
+    return { totalFees: processedFees.today, deltaFees: deltaCoreFees };
 };
 
 const getBorrowFees = async (graphUrl: string, todayTimestamp: number, yesterdayTimestamp: number): Promise<BorrowResult> => {
@@ -173,21 +178,26 @@ const getBorrowFees = async (graphUrl: string, todayTimestamp: number, yesterday
         yesterday: yesterdayTimestamp
     }) as BorrowFeeQuery;
 
-    for (const [key] of Object.entries(queryBorrowFees.today)) {
-        queryBorrowFees.today[key as keyof BorrowFee] = queryBorrowFees.today[key as keyof BorrowFee] / BASE_TOKENS
-        queryBorrowFees.yesterday[key as keyof BorrowFee] = queryBorrowFees.yesterday[key as keyof BorrowFee] / BASE_TOKENS
-    }
+    let processedFees = { today: {} as BorrowFee, yesterday: {} as BorrowFee };
+    processedFees.today.timestamp = queryBorrowFees.today[0].timestamp
+    processedFees.yesterday.timestamp = queryBorrowFees.yesterday[0].timestamp
+    processedFees.today.blockNumber = queryBorrowFees.today[0].blockNumber
+    BORROW_FEE_NAMES.forEach((key,) => {
+        processedFees.today[key as keyof BorrowFee] = queryBorrowFees.today[0][key as keyof BorrowFee] / BASE_TOKENS
+        processedFees.yesterday[key as keyof BorrowFee] = queryBorrowFees.yesterday[0][key as keyof BorrowFee] / BASE_TOKENS
+    });
 
-    const normalizer = (queryBorrowFees.today.timestamp - queryBorrowFees.today.timestamp) / DAY;
+    const noNewDataPoint = processedFees.today.timestamp === processedFees.yesterday.timestamp;
+    const normalizer = (processedFees.today.timestamp - processedFees.yesterday.timestamp) / DAY;
     const deltaBorrowFees = {
-        surplusFromInterests: (queryBorrowFees.today.surplusFromInterests - queryBorrowFees.today.surplusFromInterests) / normalizer,
-        surplusFromBorrowFees: (queryBorrowFees.today.surplusFromBorrowFees - queryBorrowFees.today.surplusFromBorrowFees) / normalizer,
-        surplusFromRepayFees: (queryBorrowFees.today.surplusFromRepayFees - queryBorrowFees.today.surplusFromRepayFees) / normalizer,
-        surplusFromLiquidationSurcharges: (queryBorrowFees.today.surplusFromLiquidationSurcharges - queryBorrowFees.today.surplusFromLiquidationSurcharges) / normalizer,
-        timestamp: queryBorrowFees.today.timestamp,
-        blockNumber: queryBorrowFees.today.blockNumber,
+        surplusFromInterests: noNewDataPoint ? 0 : (processedFees.today.surplusFromInterests - processedFees.today.surplusFromInterests) / normalizer,
+        surplusFromBorrowFees: noNewDataPoint ? 0 : (processedFees.today.surplusFromBorrowFees - processedFees.today.surplusFromBorrowFees) / normalizer,
+        surplusFromRepayFees: noNewDataPoint ? 0 : (processedFees.today.surplusFromRepayFees - processedFees.today.surplusFromRepayFees) / normalizer,
+        surplusFromLiquidationSurcharges: noNewDataPoint ? 0 : (processedFees.today.surplusFromLiquidationSurcharges - processedFees.today.surplusFromLiquidationSurcharges) / normalizer,
+        timestamp: processedFees.today.timestamp,
+        blockNumber: processedFees.today.blockNumber,
     }
-    return { totalFees: queryBorrowFees.today, deltaFees: deltaBorrowFees };
+    return { totalFees: processedFees.today, deltaFees: deltaBorrowFees };
 };
 
 // They are only distributed each week so doesn't make sense to log a window period of 1 day, instead normalize the amount by 7
@@ -198,7 +208,7 @@ const getVEANGLERevenues = async (graphUrl: string, todayTimestamp: number): Pro
         return (
             acc +
             feeDistributor.tokensPerWeek
-                .filter((weeklyReward) => (weeklyReward.week <= todayTimestamp && weeklyReward.week > todayTimestamp - DAY * 7))
+                .filter((weeklyReward) => (weeklyReward.week <= todayTimestamp && weeklyReward.week > todayTimestamp - 2 * DAY * 7))
                 .reduce<number>((acc, weeklyReward) => {
                     return acc + weeklyReward.distributed / 10 ** getFeeDistribution.feeDistributions[0].tokenDecimals;
                 }, 0)
@@ -229,14 +239,15 @@ function aggregateFee(
     }
 ): { totalRevenue: number, totalFees: number } {
     const borrowTotalRevenue = BORROW_FEE_NAMES.reduce((acc, name) => {
-        return acc + borrowFees[key as keyof BorrowResult][name as keyof BorrowFee];
+        return (name in borrowFees[key as keyof BorrowResult]) ? acc + borrowFees[key as keyof BorrowResult][name as keyof BorrowFee] : acc;
     }, 0);
     const coreTotalRevenue = CORE_PROTOCOL_FEE_NAMES.reduce((acc, name) => {
-        return acc + coreFees[key as keyof CoreResult][name as keyof CoreFee];
+        return (name in coreFees[key as keyof CoreResult]) ? acc + coreFees[key as keyof CoreResult][name as keyof CoreFee] : acc;
     }, 0);
     const coreTotalFees = CORE_FEE_NAMES.reduce((acc, name) => {
-        return acc + coreFees[key as keyof CoreResult][name as keyof CoreFee];
+        return (name in coreFees[key as keyof CoreResult]) ? acc + coreFees[key as keyof CoreResult][name as keyof CoreFee] : acc;
     }, 0);
+
     let totalRevenue = borrowTotalRevenue + coreTotalRevenue;
     let totalFees = borrowTotalRevenue + coreTotalFees;
 
@@ -259,15 +270,15 @@ const graph = (graphUrls: IGraphMultiUrls) => {
                 veANGLEInterest = await getVEANGLERevenues(graphUrls[chain].VEANGLE, todayTimestamp);
             }
 
-            const total = aggregateFee("totalFees", coreFees, borrowFees)
-            const daily = aggregateFee("totalFees", coreFees, borrowFees)
+            const total = aggregateFee("totalFees", coreFees, borrowFees);
+            const daily = aggregateFee("deltaFees", coreFees, borrowFees);
 
             return {
                 timestamp,
-                totalFees: total.totalFees.toString(),
-                dailyFees: daily.totalFees.toString(),
-                totalRevenue: total.totalRevenue.toString(),
-                dailyRevenue: daily.totalRevenue.toString(),
+                totalFees: (total.totalFees + veANGLEInterest.totalInterest).toString(),
+                dailyFees: (daily.totalFees + veANGLEInterest.deltaInterest).toString(),
+                totalRevenue: (total.totalRevenue + veANGLEInterest.totalInterest).toString(),
+                dailyRevenue: (daily.totalRevenue + veANGLEInterest.deltaInterest).toString(),
             };
         }
     }

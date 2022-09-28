@@ -29,4 +29,5 @@ export default {
     "wombat-exchange": require("../../adaptors/wombat-exchange"),
     "tarot": require("../../adaptors/tarot"),
     "woofi": require("../../adaptors/woofi"),
+    "angle": require("../../adaptors/angle"),
 }
